@@ -86,16 +86,16 @@ const Unfocused = ({
         "cursor-right": cursored === "right"
       })}
       onClick={e => {
-        e.stopPropagation();
-        const selectionData = window.getSelection().anchorNode.data;
-        dispatch(
-          actions.setCursorPosition(
-            numberRow,
-            selectionData === value
-              ? window.getSelection().anchorOffset + start
-              : start
-          )
-        );
+        // e.stopPropagation();
+        // const selectionData = window.getSelection().anchorNode.data;
+        // dispatch(
+        //   actions.setCursorPosition(
+        //     numberRow,
+        //     selectionData === value
+        //       ? window.getSelection().anchorOffset + start
+        //       : start
+        //   )
+        // );
       }}
     >
       {value}

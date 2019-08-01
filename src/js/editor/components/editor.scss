@@ -8,19 +8,48 @@
   }
 }
 
-.editor:nth-child(n) {
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.panel-editor:nth-child(n) {
   ::selection {
     background: none;
-  }
-  .token::selection {
-    color: inherit;
-    background: paleturquoise;
   }
 }
 
 .panel-editor {
   width: 500px;
   height: auto;
+  position: relative;
+
+  .selector {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+    &:focus {
+      background-color: rgba(250, 50, 50, 0);
+    }
+    .row {
+      height: 22px;
+      display: flex;
+      flex-direction: row;
+      font-size: 18px;
+      white-space: pre;
+      padding-left: 39px;
+      color: transparent;
+    }
+  }
+
   .editor {
     border: 1px solid darkgray;
     border-radius: 4px;

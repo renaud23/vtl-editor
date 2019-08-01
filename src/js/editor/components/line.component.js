@@ -11,7 +11,7 @@ const Line = ({ tokens = [], number, length, index, focused }) => {
   const divEl = createRef();
   useEffect(() => {
     if (focused) {
-      divEl.current.focus();
+      //   divEl.current.focus();
     }
   }, [divEl, focused]);
   return (
@@ -21,8 +21,8 @@ const Line = ({ tokens = [], number, length, index, focused }) => {
       ref={divEl}
       onBlur={e => e.stopPropagation()}
       onClick={e => {
-        e.stopPropagation();
-        dispatch(actions.setCursorPosition(number, length));
+        // e.stopPropagation();
+        // dispatch(actions.setCursorPosition(number, length));
       }}
     >
       <NumberLine number={number} />
