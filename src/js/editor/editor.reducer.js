@@ -10,6 +10,7 @@ const initialState = {
   prefix: undefined,
   cursorRect: undefined,
   suggesterState: { open: false, index: -1, value: undefined, size: 0 },
+  selection: undefined,
   errors: []
 };
 
@@ -23,6 +24,9 @@ export const initializer = getTokens => {
 const reducer = (state, action) => {
   const newState = (() => {
     switch (action.type) {
+      /* SELECTION */
+      case actions.SET_SELECTION:
+        return { ...state, selection: action.payload.selection };
       /* ERRORS */
       case actions.UPDATE_ERRORS:
         return { ...state, errors: action.payload.errors };

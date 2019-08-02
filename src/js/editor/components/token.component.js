@@ -1,4 +1,4 @@
-import React, { useContext, createRef } from "react";
+import React, { useContext } from "react";
 import classnames from "classnames";
 import Cursor from "./cursor.component";
 import { EditorContext } from "./editor-panel.component";
@@ -61,11 +61,8 @@ const Unfocused = ({
   token: { className, typeName, value, start, stop },
   cursored
 }) => {
-  const spanEl = createRef();
-
   return (
     <span
-      ref={spanEl}
       title={`${typeName} : ${value}`}
       className={classnames("token", className, {
         "cursor-left": cursored === "left",

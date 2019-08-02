@@ -91,9 +91,16 @@ export const previousSuggestion = () => ({
   type: PREVIOUS_SUGGESTION
 });
 
-/* */
+/* UPDATE_ERRORS */
 export const UPDATE_ERRORS = "editor/update-errors";
 export const updateErrors = (errors = []) => ({
   type: UPDATE_ERRORS,
   payload: { errors }
+});
+
+/* SET_SELECTION */
+export const SET_SELECTION = "editor/set-selection";
+export const setSelection = selection => ({
+  type: SET_SELECTION,
+  payload: { selection }
 });

@@ -3,15 +3,15 @@ import { EditorContext } from "./editor-panel.component";
 import * as actions from "../editor.actions";
 
 const Selector = ({ lines, el }) => {
-  const { dispatch } = useContext(EditorContext);
-  const divEl = createRef();
+  const { selection } = useContext(EditorContext);
+  // const divEl = createRef();
 
-  const [row, setRow] = useState(undefined);
-  const [start, setStart] = useState(false);
-  const [selection, setSelection] = useState(undefined);
+  // const [row, setRow] = useState(undefined);
+  // const [start, setStart] = useState(false);
+  // const [selection, setSelection] = useState(undefined);
   return (
     <React.Fragment>
-      <div
+      {/* <div
         ref={divEl}
         tabIndex="0"
         className="selector"
@@ -62,7 +62,7 @@ const Selector = ({ lines, el }) => {
             {value}
           </div>
         ))}
-      </div>
+      </div> */}
       <Selection selection={selection} lines={lines} />
     </React.Fragment>
   );

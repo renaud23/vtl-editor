@@ -1,56 +1,62 @@
-import React, { useContext, useEffect, createRef } from "react";
+import React, { useContext, createRef, useState } from "react";
 import KEY from "../key-bind";
 import { EditorContext } from "./editor-panel.component";
-import Line from "./line.component";
-import Selector from "./selector.component";
 import * as actions from "../editor.actions";
-import FrontEditor from "./front-editor.component";
 
-const Editor = ({ parse }) => {
-  const editorEl = createRef();
+const FrontEditor = () => {
+  const divEl = createRef();
   const state = useContext(EditorContext);
-  const { lines, focusedRow, index, dispatch } = state;
+  const { lines = [], dispatch, selection } = state;
 
-  useEffect(() => {
-    const code = lines.reduce(
-      (a, { value }) => (value.length > 0 ? `${a}${value}\n` : a),
-      ""
-    );
-    const { errors, dico } = parse(code);
-
-    dispatch(actions.updateErrors(errors));
-  }, [lines, parse, dispatch]);
-
-  // useEffect(() => {
-  //   editorEl.current.addEventListener(
-  //     "onEditorMouseDown",
-  //     e => {
-  //       e.stopImmediatePropagation();
-  //       suggesterKeyDownProxy(keyDownCallback)(dispatch, state)(e.detail);
-  //     },
-  //     false
-  //   );
-  // }, [editorEl, dispatch, state]);
+  const [start, setStart] = useState(false);
 
   return (
-    <React.Fragment>
-      <FrontEditor lines={lines} />
-      <Selector lines={lines} el={editorEl} />
-      <div ref={editorEl} className="editor">
-        {lines.map(({ tokens, value }, i) => (
-          <Line
-            key={`${i}-line`}
-            tokens={tokens}
-            length={value.length}
-            number={i}
-            index={index}
-            focused={focusedRow === i}
-          />
-        ))}
-      </div>
-    </React.Fragment>
+    <div
+      className="front-editor"
+      ref={divEl}
+      tabIndex="0"
+      onKeyDown={suggesterKeyDownProxy(keyDownCallback)(dispatch, state)}
+      onMouseDown={e => {
+        divEl.current.focus();
+      }}
+    >
+      {lines.map(({ value }, i) => (
+        <div
+          key={i}
+          className="row"
+          onMouseEnter={e => {}}
+          onMouseDown={e => {
+            setStart(true);
+            dispatch(actions.setSelection({ anchorRow: i }));
+          }}
+          onMouseMove={e => {
+            if (start) {
+              const { anchorOffset, extentOffset } = window.getSelection();
+
+              dispatch(
+                actions.setSelection({
+                  ...selection,
+                  extentRow: i,
+                  anchorOffset,
+                  extentOffset
+                })
+              );
+            }
+          }}
+          onMouseUp={e => {
+            setStart(false);
+            const { anchorOffset } = window.getSelection();
+            dispatch(actions.setCursorPosition(i, anchorOffset));
+          }}
+        >
+          {value}
+        </div>
+      ))}
+    </div>
   );
 };
+
+export default FrontEditor;
 
 /* */
 const suggesterKeyDownProxy = callback => (dispatch, state) => {
@@ -127,17 +133,17 @@ const keyDownCallback = (dispatch, state) => e => {
 const isCharCode = c => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
 
 /* */
-const onBlurCallback = dispatch => e => {
-  e.stopPropagation();
-  e.preventDefault();
-  dispatch(actions.exitEditor());
-};
+// const onBlurCallback = dispatch => e => {
+//   e.stopPropagation();
+//   e.preventDefault();
+//   dispatch(actions.exitEditor());
+// };
 
 /* */
-const onMouseDownCallback = (dispatch, state) => e => {
-  const { prefix } = state;
-  if (prefix) dispatch(actions.resetPrefix());
-};
+// const onMouseDownCallback = (dispatch, state) => e => {
+//   const { prefix } = state;
+//   if (prefix) dispatch(actions.resetPrefix());
+// };
 
 /* */
 const isSelection = () => {
@@ -154,5 +160,3 @@ const isSelection = () => {
 };
 
 /* */
-
-export default Editor;

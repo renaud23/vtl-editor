@@ -1,30 +1,12 @@
-import React, { createRef, useEffect, useContext } from "react";
+import React from "react";
 import classnames from "classnames";
 import Token from "./token.component";
 import Cursor from "./cursor.component";
 import { lineProps } from "../editor-prop-types";
-import * as actions from "../editor.actions";
-import { EditorContext } from "./editor-panel.component";
 
 const Line = ({ tokens = [], number, length, index, focused }) => {
-  const { dispatch } = useContext(EditorContext);
-  const divEl = createRef();
-  useEffect(() => {
-    if (focused) {
-      //   divEl.current.focus();
-    }
-  }, [divEl, focused]);
   return (
-    <div
-      className="editor-line"
-      tabIndex="0"
-      ref={divEl}
-      onBlur={e => e.stopPropagation()}
-      onClick={e => {
-        // e.stopPropagation();
-        // dispatch(actions.setCursorPosition(number, length));
-      }}
-    >
+    <div className="editor-line" tabIndex="0" onBlur={e => e.stopPropagation()}>
       <NumberLine number={number} />
       <span className="content">
         {tokens.map((token, i) => (
