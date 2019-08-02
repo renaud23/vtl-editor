@@ -5,7 +5,7 @@ import { getTokens, parse } from "./js/vtl-integration";
 import * as serviceWorker from "./serviceWorker";
 import { LoremIpsum } from "lorem-ipsum";
 
-import "./editor-for-js.scss";
+import "./vtl-tokens.scss";
 
 const getWords = () => {
   const lorem = new LoremIpsum({
