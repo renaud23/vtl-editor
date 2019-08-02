@@ -8,7 +8,7 @@ import * as actions from "../editor.actions";
 const Editor = ({ parse }) => {
   const editorEl = createRef();
   const state = useContext(EditorContext);
-  const { lines, focusedRow, index, dispatch, tokensEl } = state;
+  const { lines, focusedRow, index, dispatch } = state;
 
   useEffect(() => {
     const code = lines.reduce(
@@ -25,13 +25,11 @@ const Editor = ({ parse }) => {
       "onEditorMouseDown",
       e => {
         e.stopImmediatePropagation();
-        suggesterKeyDownProxy(keyDownCallback)(dispatch, state, tokensEl)(
-          e.detail
-        );
+        suggesterKeyDownProxy(keyDownCallback)(dispatch, state)(e.detail);
       },
       false
     );
-  }, [editorEl, dispatch, state, tokensEl]);
+  }, [editorEl, dispatch, state]);
   // onKeyDown={e => null}
   // onMouseDown={onMouseDownCallback(dispatch, state)}
   // onBlur={onBlurCallback(dispatch, state)}
@@ -55,9 +53,9 @@ const Editor = ({ parse }) => {
 };
 
 /* */
-const suggesterKeyDownProxy = callback => (dispatch, state, tokensEl) => {
+const suggesterKeyDownProxy = callback => (dispatch, state) => {
   if (!state.edit) return;
-  const callee = callback(dispatch, state, tokensEl);
+  const callee = callback(dispatch, state);
 
   return e => {
     const { open, index } = state.suggesterState;
@@ -85,7 +83,7 @@ const suggesterKeyDownProxy = callback => (dispatch, state, tokensEl) => {
 };
 
 /* */
-const keyDownCallback = (dispatch, state, tokensEl) => e => {
+const keyDownCallback = (dispatch, state) => e => {
   if (KEY.isUnbindedKey(e.key)) return;
   e.stopPropagation();
   e.preventDefault();
@@ -101,7 +99,6 @@ const keyDownCallback = (dispatch, state, tokensEl) => e => {
     case KEY.ENTER:
     case KEY.BACK_SPACE:
       if (isSelection()) {
-        // checkForDeleteSelection(dispatch, state, tokensEl);
         break;
       }
       dispatch({ type: key });
@@ -157,96 +154,5 @@ const isSelection = () => {
 };
 
 /* */
-// const isInSelection = node =>
-//   window.getSelection().containsNode(node.firstChild || node);
 
-// const isAnchorNode = (anchor, node) =>
-//   anchor.isSameNode(node.firstChild || node) ? true : false;
-
-// const deleteOnLine = (line, token) => `${line.substr(0)}`;
-
-// const checkForDeleteSelection = (dispatch, { lines }, tokensEl) => {
-//   window.getSelection().deleteFromDocument();
-//   const linesEl = document
-//     .querySelector(".editor")
-//     .querySelectorAll(".editor-line .content");
-
-//   const values = [];
-//   for (var item of linesEl.values()) {
-//     values.push(item.textContent);
-//   }
-//   console.log(values);
-// };
-
-// const checkForDeleteSelection_ = (dispatch, { lines }, tokensEl) => {
-//   const selection = document.getSelection();
-//   const { anchor, extent, tokens } = tokensEl.reduce(
-//     (
-//       { tokens, anchor, extent },
-//       { spanEl, numberRow, numberToken, start, stop, value }
-//     ) =>
-//       isInSelection(spanEl.current)
-//         ? {
-//             tokens:
-//               isAnchorNode(selection.anchorNode, spanEl.current) ||
-//               isAnchorNode(selection.extentNode, spanEl.current)
-//                 ? tokens
-//                 : {
-//                     ...tokens,
-//                     [numberRow]:
-//                       numberRow in tokens
-//                         ? [
-//                             ...tokens[numberRow],
-//                             { numberRow, numberToken, start, stop, value }
-//                           ]
-//                         : [{ numberRow, numberToken, start, stop, value }]
-//                   },
-//             anchor: isAnchorNode(selection.anchorNode, spanEl.current)
-//               ? { numberRow, numberToken, value }
-//               : anchor,
-//             extent: isAnchorNode(selection.extentNode, spanEl.current)
-//               ? { numberRow, numberToken, value }
-//               : extent
-//           }
-//         : { tokens, anchor, extent },
-//     {
-//       tokens: {},
-//       anchor: undefined,
-//       extent: undefined
-//     }
-//   );
-
-//   const values = reduceLines(lines)(tokens);
-//   console.log(window.getSelection());
-//   console.log(tokens);
-
-//   // const sel = window.getSelection();
-//   // dispatch(actions.deleteSelection(selection));
-//   // sel.extend(sel.anchorNode, 0);
-// };
-
-// const reduceLines = lines => tokens =>
-//   Object.entries(tokens).reduce(
-//     (a, [numberRow, tokensRow]) => {
-//       const newValue = reduceRow(lines[numberRow].value, tokensRow);
-//       return newValue.length > 0 ? [...a, newValue] : a;
-//     },
-
-//     []
-//   );
-
-// const reduceRow = (value, tokens) =>
-//   tokens.reduce(
-//     ({ val, index }, { start, stop, value }) => ({
-//       val: `${val.substr(0, start - index)}${val.substr(stop + 1 - index)}`,
-//       index: index + value.length
-//     }),
-//     { val: value, index: 0 }
-//   ).val;
-
-// const checkAnchorsSelection = lines => ({ anchor, extent }) => {
-//   if (!anchor && !extent) return lines;
-//   // const
-//   return lines;
-// };
 export default Editor;

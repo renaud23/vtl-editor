@@ -1,7 +1,6 @@
-import React, { useContext, createRef, useEffect } from "react";
+import React, { useContext, createRef } from "react";
 import classnames from "classnames";
 import Cursor from "./cursor.component";
-import * as actions from "../editor.actions";
 import { EditorContext } from "./editor-panel.component";
 import { tokenProps } from "../editor-prop-types";
 
@@ -62,21 +61,8 @@ const Unfocused = ({
   token: { className, typeName, value, start, stop },
   cursored
 }) => {
-  const { dispatch, tokensEl, index } = useContext(EditorContext);
   const spanEl = createRef();
 
-  // errors.map(err => console.log(err));
-
-  useEffect(() => {
-    tokensEl.push({
-      spanEl,
-      numberRow,
-      numberToken,
-      start,
-      stop,
-      value
-    });
-  }, [spanEl, numberRow, numberToken, tokensEl, start, stop, index, value]);
   return (
     <span
       ref={spanEl}
@@ -85,18 +71,6 @@ const Unfocused = ({
         "cursor-left": cursored === "left",
         "cursor-right": cursored === "right"
       })}
-      onClick={e => {
-        // e.stopPropagation();
-        // const selectionData = window.getSelection().anchorNode.data;
-        // dispatch(
-        //   actions.setCursorPosition(
-        //     numberRow,
-        //     selectionData === value
-        //       ? window.getSelection().anchorOffset + start
-        //       : start
-        //   )
-        // );
-      }}
     >
       {value}
     </span>

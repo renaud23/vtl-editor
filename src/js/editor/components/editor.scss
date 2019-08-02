@@ -37,8 +37,9 @@
     width: 100%;
     height: 100%;
     &:focus {
-      background-color: rgba(250, 50, 50, 0);
+      background-color: transparent;
     }
+
     .row {
       height: 22px;
       display: flex;
@@ -48,9 +49,22 @@
       padding-left: 39px;
       color: transparent;
     }
+    z-index: 2;
+  }
+
+  .selector-2 {
+    @extend .selector;
+    z-index: 1;
+    background-color: transparent;
+
+    .selected {
+      background-color: rgba(200, 0, 200, 0.3);
+      color: transparent;
+    }
   }
 
   .editor {
+    z-index: 0;
     border: 1px solid darkgray;
     border-radius: 4px;
 
@@ -246,7 +260,7 @@
   padding: 2px 2px;
   border: solid lightgray 1px;
   background-color: #303030;
-  z-index: 1;
+  z-index: 4;
 
   .active {
     background-color: #505050;
