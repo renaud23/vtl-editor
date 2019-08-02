@@ -1,7 +1,6 @@
 import React, { createRef, useState, useContext, useEffect } from "react";
 import { EditorContext } from "./editor-panel.component";
 import * as actions from "../editor.actions";
-import { isFunctionParent } from "@babel/types";
 
 const Selector = ({ lines, el }) => {
   const { dispatch } = useContext(EditorContext);

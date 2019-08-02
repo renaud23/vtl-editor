@@ -86,6 +86,7 @@ const reducer = (state, action) => {
       case actions.SET_CURSOR_POSITION:
         return {
           ...state,
+          prefix: undefined,
           index: action.payload.index,
           focusedRow: action.payload.numberRow
         };
