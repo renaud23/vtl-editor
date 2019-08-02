@@ -46,6 +46,10 @@ class VtlInspector extends VtlListener {
     // console.log("exp", ctx.getText());
   }
 
+  exitVarID(ctx) {
+    // console.log("var_id", ctx.getText());
+  }
+
   exitCeilAtom(ctx) {
     // console.log(ctx);
     // console.log("ceil", ctx.getText());

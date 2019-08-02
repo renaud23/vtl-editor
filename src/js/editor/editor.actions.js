@@ -59,13 +59,6 @@ export const suggestToken = suggestion => ({
   payload: { suggestion }
 });
 
-/* DELETE_SELECTION */
-export const DELETE_SELECTION = "editor/delete-selection";
-export const deleteSelction = selection => ({
-  type: DELETE_SELECTION,
-  payload: { selection }
-});
-
 /* SET_SUGGESTER_STATE */
 export const SET_SUGGESTER_STATE = "editor/set-suggester-state";
 export const setSuggesterState = ({ open, size, value }) => ({
@@ -102,5 +95,12 @@ export const updateErrors = (errors = []) => ({
 export const SET_SELECTION = "editor/set-selection";
 export const setSelection = selection => ({
   type: SET_SELECTION,
+  payload: { selection }
+});
+
+/* DELETE_SELECTION */
+export const DELETE_SELECTION = "editor/delete-selection";
+export const deleteSelection = selection => ({
+  type: DELETE_SELECTION,
   payload: { selection }
 });

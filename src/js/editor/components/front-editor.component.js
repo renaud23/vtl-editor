@@ -104,7 +104,8 @@ const keyDownCallback = (dispatch, state) => e => {
     case KEY.DELETE:
     case KEY.ENTER:
     case KEY.BACK_SPACE:
-      if (isSelection()) {
+      if (isSelection(state.selection)) {
+        dispatch(actions.deleteSelection(state.selection));
         break;
       }
       dispatch({ type: key });
@@ -123,6 +124,9 @@ const keyDownCallback = (dispatch, state) => e => {
       break;
     default:
       if (isCharCode(key)) {
+        if (isSelection(state.selection)) {
+          dispatch(actions.deleteSelection(state.selection));
+        }
         dispatch(actions.insertCharacter(key));
         dispatch(actions.checkPrefix());
       }
@@ -146,17 +150,6 @@ const isCharCode = c => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
 // };
 
 /* */
-const isSelection = () => {
-  const {
-    anchorOffset,
-    focusOffset,
-    anchorNode,
-    focusNode
-  } = window.getSelection();
-  return (
-    (focusNode && !focusNode.isEqualNode(anchorNode)) ||
-    anchorOffset !== focusOffset
-  );
-};
+const isSelection = selection => selection && selection.extentOffset;
 
 /* */

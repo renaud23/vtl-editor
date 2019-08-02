@@ -21,17 +21,6 @@ const Editor = ({ parse }) => {
     dispatch(actions.updateErrors(errors));
   }, [lines, parse, dispatch]);
 
-  // useEffect(() => {
-  //   editorEl.current.addEventListener(
-  //     "onEditorMouseDown",
-  //     e => {
-  //       e.stopImmediatePropagation();
-  //       suggesterKeyDownProxy(keyDownCallback)(dispatch, state)(e.detail);
-  //     },
-  //     false
-  //   );
-  // }, [editorEl, dispatch, state]);
-
   return (
     <React.Fragment>
       <FrontEditor lines={lines} />

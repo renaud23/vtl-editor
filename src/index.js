@@ -30,52 +30,16 @@ const getWords = () => {
 const dictionnary = {
   variables: getWords(),
   keywords: ["if", "then", "else"],
-  operator: ["=", ">", "<", "+", "-", "*", "/"]
+  operator: ["=", ">", "<", "+", "-", "*", "/"],
+  toto: ["ifff", "kkkk"]
 };
 
 const content = [
-  'toto := "toto";',
+  'tata := "toto";',
   'if toto = "toto"',
   "\tthen true",
   "\t else false;",
-  "if toto >=30 then 50 else 60;"
-  /* */
-  // "const fillUnmappedToken = (tokensOriginal, ligne) => {",
-  // "  const result = tokensOriginal.reduce(",
-  // "    ({ index, tokens }, token) =>",
-  // "      index < token.start",
-  // "        ? {",
-  // "            index: token.stop + 1,",
-  // "            tokens: [",
-  // "              ...tokens,",
-  // "              {",
-  // "                start: index,",
-  // "                stop: token.start - 1,",
-  // '                className: "unmapped",',
-  // "                value: ligne.substr(index, token.start - index)",
-  // "              },",
-  // "              token",
-  // "            ]",
-  // "          }",
-  // "        : { index: token.stop + 1, tokens: [...tokens, token] },",
-  // "    { index: 0, tokens: [] }",
-  // "  );",
-  // "",
-  // "  if (result.index < ligne.length) {",
-  // "    return [",
-  // "      ...result.tokens,",
-  // "      {",
-  // "        start: result.index,",
-  // "        stop: ligne.length - 1,",
-  // '        className: "unmapped",',
-  // '        typeName: "unknow",',
-  // "        value: ligne.substr(result.index, ligne.length - result.index)",
-  // "      }",
-  // "    ];",
-  // "  }",
-  // "",
-  // "  return result.tokens;",
-  // "};"
+  "if titi >=30 then 50 else 60;"
 ];
 
 ReactDOM.render(

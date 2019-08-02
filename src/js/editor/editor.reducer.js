@@ -27,6 +27,9 @@ const reducer = (state, action) => {
       /* SELECTION */
       case actions.SET_SELECTION:
         return { ...state, selection: action.payload.selection };
+      case actions.DELETE_SELECTION:
+        // TODO
+        return deleteSelection(state);
       /* ERRORS */
       case actions.UPDATE_ERRORS:
         return { ...state, errors: action.payload.errors };
@@ -68,9 +71,7 @@ const reducer = (state, action) => {
           prefix: undefined
         };
       /* */
-      case actions.DELETE_SELECTION:
-        // TODO
-        return deleteSelection(state);
+
       case actions.EXIT_EDITOR:
         return {
           ...state,
@@ -338,8 +339,39 @@ const getNewRow = (string, old = {}) => ({
 
 /* DELETE_SELECTION */
 const deleteSelection = state => {
-  // TODO
-  return { ...state };
+  const { selection } = state;
+  const lines = state.lines
+    .reduce(
+      (a, line, i) =>
+        i >= selection.anchorRow && i <= selection.extentRow
+          ? [...a, deleteOnRow(selection)(line, i)]
+          : [...a, line],
+      []
+    )
+    .filter(({ value }) => value.length > 0);
+  return {
+    ...state,
+    lines,
+    focusedRow: selection.anchorRow,
+    index: selection.anchorOffset,
+    selection: undefined
+  };
+};
+
+const deleteOnRow = ({ anchorRow, extentRow, anchorOffset, extentOffset }) => (
+  { value },
+  row
+) => {
+  const next =
+    row === anchorRow
+      ? `${value.substr(0, anchorOffset)}${
+          row === extentRow ? value.substr(extentOffset) : ""
+        }`
+      : row === extentRow
+      ? value.substr(extentOffset)
+      : "";
+  console.log(value);
+  return getNewRow(next);
 };
 
 export default reducer;
