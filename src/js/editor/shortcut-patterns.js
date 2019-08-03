@@ -38,6 +38,18 @@ const paste = (dispatch, state) => {
 	return false;
 };
 
+/* select all */
+const selectAll = (dispatch, state) => {
+	dispatch(
+		actions.setSelection({
+			anchorRow: 0,
+			anchorOffset: 0,
+			extentRow: state.lines.length - 1,
+			extentOffset: state.lines[state.lines.length - 1].value.length
+		})
+	);
+};
+
 /* copy to clipboard */
 const copy = (dispatch, state) => {
 	if (state.selection) {
@@ -63,3 +75,4 @@ const getSelection = ({ lines, selection: { anchorRow, anchorOffset, extentRow, 
 SHORT_CUTS.set('ctrl|x', cut);
 SHORT_CUTS.set('ctrl|c', copy);
 SHORT_CUTS.set('ctrl|v', paste);
+SHORT_CUTS.set('ctrl|a', selectAll);

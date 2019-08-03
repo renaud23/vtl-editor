@@ -116,9 +116,9 @@ const reducer = (state, action) => {
 			case KEY.ENTER:
 				return reduceKeyEnter(state);
 			case KEY.HOME:
-				return { ...state, index: 0 };
+				return { ...state, index: 0, selection: undefined, prefix: undefined };
 			case KEY.END:
-				return { ...state, index: getRowLength(state) };
+				return { ...state, index: getRowLength(state), selection: undefined, prefix: undefined };
 			case actions.CHECK_INDEX:
 				return { ...state, index: Math.min(state.index, getRowLength(state)) };
 			case KEY.TAB:
@@ -310,7 +310,7 @@ const deleteSelection = (state) => {
 		.filter(({ value }) => value.length > 0);
 	return {
 		...state,
-		lines,
+		lines: lines.length > 0 ? lines : [ { value: '', tokens: [] } ],
 		focusedRow: selection.anchorRow,
 		index: selection.anchorOffset,
 		selection: undefined
