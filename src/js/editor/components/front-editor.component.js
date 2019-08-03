@@ -6,7 +6,7 @@ import * as actions from '../editor.actions';
 const FrontEditor = () => {
 	const divEl = createRef();
 	const state = useContext(EditorContext);
-	const { lines, dispatch, selection, handleChange, errors } = state;
+	const { lines, dispatch, selection, handleChange, errors, shortcutPatterns } = state;
 
 	useEffect(
 		() => {
@@ -22,7 +22,7 @@ const FrontEditor = () => {
 			className="front-editor"
 			ref={divEl}
 			tabIndex="0"
-			onKeyDown={suggesterKeyDownProxy(keyDownCallback)(dispatch, state)}
+			onKeyDown={suggesterKeyDownProxy(keyDownCallback, shortcutPatterns)(dispatch, state)}
 			onMouseDown={(e) => {
 				divEl.current.focus();
 			}}
@@ -66,9 +66,9 @@ const FrontEditor = () => {
 export default FrontEditor;
 
 /* */
-const suggesterKeyDownProxy = (callback) => (dispatch, state) => {
+const suggesterKeyDownProxy = (callback, shortcutPatterns) => (dispatch, state) => {
 	if (!state.edit) return;
-	const callee = callback(dispatch, state);
+	const callee = callback(shortcutPatterns)(dispatch, state);
 
 	return (e) => {
 		const { open, index } = state.suggesterState;
@@ -96,10 +96,11 @@ const suggesterKeyDownProxy = (callback) => (dispatch, state) => {
 };
 
 /* */
-const keyDownCallback = (dispatch, state) => (e) => {
+const keyDownCallback = (shortcutPatterns) => (dispatch, state) => (e) => {
 	if (KEY.isUnbindedKey(e.key)) return;
 	e.stopPropagation();
 	e.preventDefault();
+	if (e.ctrlKey || e.altKey) return shortcutCallback(shortcutPatterns)(dispatch, state)(e);
 	const { key } = e;
 	switch (key) {
 		case KEY.ARROW_UP:
@@ -139,6 +140,12 @@ const keyDownCallback = (dispatch, state) => (e) => {
 			}
 			break;
 	}
+};
+
+/* */
+const shortcutCallback = (patterns) => (dispatch, state) => ({ key, altKey, ctrlKey, shiftKey }) => {
+	const pattern = patterns.get({ altKey, shiftKey, ctrlKey, key });
+	pattern.execute();
 };
 
 const isCharCode = (c) => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);

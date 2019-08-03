@@ -5,6 +5,7 @@ import Suggestions from './sugestions.component';
 import Editor from './editor.component';
 import createSuggester from '../suggestions-manager';
 import createFulTokenizer from '../create-full-tokenizer';
+import defaultPatterns from './../shortcut-patterns';
 import './editor.scss';
 
 const EditorPanel = ({ content = [], edit = true, getTokens, parse, dictionnary = {}, handleChange = () => null }) => {
@@ -23,7 +24,7 @@ const EditorPanel = ({ content = [], edit = true, getTokens, parse, dictionnary 
 
 	const suggester = useMemo(() => createSuggester(dictionnary), [ dictionnary ]);
 	return (
-		<EditorContext.Provider value={{ ...state, edit, handleChange, dispatch }}>
+		<EditorContext.Provider value={{ ...state, edit, handleChange, dispatch, shortcutPatterns: defaultPatterns }}>
 			<div className="panel-editor">
 				<Editor getTokens={getFullTokens} parse={parse} />
 				<Suggestions suggest={suggester} />
