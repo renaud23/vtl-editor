@@ -326,11 +326,37 @@ const deleteOnRow = ({ anchorRow, extentRow, anchorOffset, extentOffset }) => ({
 };
 
 /* INSERT_TEXT */
-
 const insertText = (state, text) => {
-	// TODO
-	console.log(text);
+	const { focusedRow, index } = state;
+	if (focusedRow !== undefined && index !== undefined) {
+		const newRows = text.split(/\n/);
+
+		if (newRows[newRows.length - 1].length === 0) newRows.pop();
+		const lines = state.lines.reduce(
+			(a, line, row) => (row === focusedRow ? [ ...a, ...insertInLine(index)(line, newRows) ] : [ ...a, line ]),
+			[]
+		);
+		const newFocusedRow = focusedRow + newRows.length - 1;
+		const newIndex = newRows[newRows.length - 1].length + (newRows.length > 1 ? 0 : index);
+		return {
+			...state,
+			lines,
+			selection: undefined,
+			focusedRow: newFocusedRow,
+			index: newIndex
+		};
+	}
+
 	return { ...state };
+};
+
+const insertInLine = (index) => (line, rows) => {
+	const getRow = (line) => (rows, i) =>
+		i === 0
+			? getNewRow(`${line.value.substr(0, index)}${rows[i]}${line.value.substr(index)}`)
+			: i === rows.length - 1 ? getNewRow(`${rows[i]}${line.value.substr(index)}`) : getNewRow(rows[i]);
+	const newRows = rows.length === 0 ? [ rows ] : rows.map((row, i) => getRow(line)(rows, i));
+	return newRows;
 };
 
 export default reducer;

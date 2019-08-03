@@ -27,10 +27,13 @@ const cut = () => {
 };
 
 /* paste clipboard */
-const paste = (dispatch) => {
+const paste = (dispatch, state) => {
 	if (navigator && navigator.clipboard)
 		navigator.clipboard.readText().then((text) => {
-			if (text && text.length > 0) dispatch(actions.insertText(text));
+			if (text && text.length > 0) {
+				if (state.selection && state.selection.extentRow) dispatch(actions.deleteSelection());
+				dispatch(actions.insertText(text));
+			}
 		});
 	return false;
 };
