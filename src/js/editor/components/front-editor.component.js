@@ -145,7 +145,7 @@ const keyDownCallback = (shortcutPatterns) => (dispatch, state) => (e) => {
 /* */
 const shortcutCallback = (patterns) => (dispatch, state) => ({ key, altKey, ctrlKey, shiftKey }) => {
 	const pattern = patterns.get({ altKey, shiftKey, ctrlKey, key });
-	pattern.execute();
+	pattern.execute(dispatch, state);
 };
 
 const isCharCode = (c) => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
@@ -155,12 +155,6 @@ const isCharCode = (c) => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
 //   e.stopPropagation();
 //   e.preventDefault();
 //   dispatch(actions.exitEditor());
-// };
-
-/* */
-// const onMouseDownCallback = (dispatch, state) => e => {
-//   const { prefix } = state;
-//   if (prefix) dispatch(actions.resetPrefix());
 // };
 
 /* */

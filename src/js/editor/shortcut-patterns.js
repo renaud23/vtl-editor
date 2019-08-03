@@ -1,3 +1,5 @@
+import * as actions from './editor.actions';
+
 const getPattern = ({ altKey, shiftKey, ctrlKey, key }) =>
 	`${altKey ? 'alt|' : ''}${shiftKey ? 'shift|' : ''}${ctrlKey ? 'ctrl|' : ''}${key ? key : ''}`;
 
@@ -24,19 +26,37 @@ const cut = () => {
 	return false;
 };
 
-/* */
-const paste = () => {
-	console.log('paste');
+/* paste clipboard */
+const paste = (dispatch) => {
+	if (navigator && navigator.clipboard)
+		navigator.clipboard.readText().then((text) => {
+			if (text && text.length > 0) dispatch(actions.insertText(text));
+		});
 	return false;
 };
 
-/* */
-const copy = () => {
-	console.log('copy');
+/* copy to clipboard */
+const copy = (dispatch, state) => {
+	if (state.selection) {
+		const content = getSelection(state);
+		if (navigator && navigator.clipboard) navigator.clipboard.writeText(content);
+	}
 	return false;
 };
+
+const getSelection = ({ lines, selection: { anchorRow, anchorOffset, extentRow, extentOffset } }) =>
+	lines
+		.map(
+			({ value }, row) =>
+				row === anchorRow
+					? `${value.substr(anchorOffset, row === extentRow ? extentOffset : value.length)}`
+					: row === extentRow
+						? value.substr(0, extentOffset)
+						: row >= anchorRow && row <= extentRow ? value : null
+		)
+		.reduce((a, line) => (line ? `${a}${line}\n` : a), '');
 
 /* MAPPING */
 SHORT_CUTS.set('ctrl|x', cut);
 SHORT_CUTS.set('ctrl|c', copy);
-SHORT_CUTS.set('ctrl|v', cut);
+SHORT_CUTS.set('ctrl|v', paste);
