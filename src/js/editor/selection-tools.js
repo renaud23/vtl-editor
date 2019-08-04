@@ -14,6 +14,10 @@ export const getSelection = ({ lines, selection: { anchorRow, anchorOffset, exte
 		.reduce((a, line) => (line ? `${a}${line}\n` : a), '');
 
 /* */
+export const getTokensOnLine = (line = { tokens: [] }, index) =>
+	line.tokens.reduce((a, token) => (index >= token.start && index <= token.stop ? token : a), undefined);
+
+/* */
 SELECTION_TOOLS.getSelection = getSelection;
 
 export default SELECTION_TOOLS;

@@ -1,5 +1,5 @@
 import * as actions from './editor.actions';
-import { getSelection } from './selection-tools';
+import * as TOOLS from './selection-tools';
 
 const SHORT_CUTS = new Map();
 
@@ -43,8 +43,33 @@ const selectAll = (dispatch, state) => {
 /* copy to clipboard */
 const copy = (dispatch, state) => {
 	if (state.selection) {
-		const content = getSelection(state);
+		const content = TOOLS.getSelection(state);
 		if (navigator && navigator.clipboard) navigator.clipboard.writeText(content);
+	}
+	return true;
+};
+
+/* next token */
+const nextToken = (dispatch, state) => {
+	const { focusedRow, index, lines } = state;
+	if (focusedRow !== undefined && index !== undefined) {
+		const line = lines[focusedRow];
+		const token = TOOLS.getTokensOnLine(line, index);
+		if (token) {
+			dispatch(actions.setCursorPosition(focusedRow, token.stop + 1));
+		}
+	}
+	return true;
+};
+
+/* next token */
+const prevToken = (dispatch, state) => {
+	const { focusedRow, index, lines } = state;
+	if (focusedRow !== undefined && index !== undefined) {
+		const line = lines[focusedRow];
+		const token = TOOLS.getTokensOnLine(line, index);
+
+		dispatch(actions.setCursorPosition(focusedRow, token ? Math.max(token.start - 1, 0) : Math.max(index - 1, 0)));
 	}
 	return true;
 };
@@ -54,6 +79,8 @@ SHORT_CUTS.set('ctrl|x', cut);
 SHORT_CUTS.set('ctrl|c', copy);
 SHORT_CUTS.set('ctrl|v', paste);
 SHORT_CUTS.set('ctrl|a', selectAll);
+SHORT_CUTS.set('ctrl|ArrowRight', nextToken);
+SHORT_CUTS.set('ctrl|ArrowLeft', prevToken);
 
 const getPattern = ({ altKey, shiftKey, ctrlKey, key }) =>
 	`${altKey ? 'alt|' : ''}${shiftKey ? 'shift|' : ''}${ctrlKey ? 'ctrl|' : ''}${key ? key : ''}`;
