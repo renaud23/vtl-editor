@@ -8,6 +8,7 @@ const SHORT_CUTS = new Map();
 /* */
 const unmappedPattern = (pattern) => () => {
 	console.debug(`unmapped pattern: ${pattern}`);
+	return false;
 };
 
 export default {
@@ -20,10 +21,10 @@ export default {
 	}
 };
 
-/* */
+/* cut to clipboard */
 const cut = () => {
 	console.log('cut');
-	return false;
+	return true;
 };
 
 /* paste clipboard */
@@ -35,7 +36,7 @@ const paste = (dispatch, state) => {
 				dispatch(actions.insertText(text));
 			}
 		});
-	return false;
+	return true;
 };
 
 /* select all */
@@ -48,6 +49,7 @@ const selectAll = (dispatch, state) => {
 			extentOffset: state.lines[state.lines.length - 1].value.length
 		})
 	);
+	return true;
 };
 
 /* copy to clipboard */
@@ -56,7 +58,7 @@ const copy = (dispatch, state) => {
 		const content = getSelection(state);
 		if (navigator && navigator.clipboard) navigator.clipboard.writeText(content);
 	}
-	return false;
+	return true;
 };
 
 const getSelection = ({ lines, selection: { anchorRow, anchorOffset, extentRow, extentOffset } }) =>

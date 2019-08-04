@@ -7,7 +7,7 @@ const FrontEditor = () => {
 	const divEl = createRef();
 	const state = useContext(EditorContext);
 	const [ effectiveSel, setEffectiveSel ] = useState(undefined);
-	const { lines, dispatch, selection, handleChange, errors, shortcutPatterns } = state;
+	const { lines, dispatch, handleChange, errors, shortcutPatterns } = state;
 
 	useEffect(
 		() => {
@@ -23,7 +23,12 @@ const FrontEditor = () => {
 			className="front-editor"
 			ref={divEl}
 			tabIndex="0"
-			onKeyDown={suggesterKeyDownProxy(keyDownCallback, shortcutPatterns)(dispatch, state)}
+			onKeyDown={compose(dispatch, state, shortcutPatterns)(
+				keydowShorcutCallback,
+				keyDownWithSelection,
+				keyDownsuggesterProxy,
+				keyDownCallback
+			)}
 			onMouseDown={(e) => {
 				divEl.current.focus();
 			}}
@@ -77,59 +82,60 @@ const FrontEditor = () => {
 export default FrontEditor;
 
 /* */
-const suggesterKeyDownProxy = (callback, shortcutPatterns) => (dispatch, state) => {
-	if (!state.edit) return;
-	const callee = callback(shortcutPatterns)(dispatch, state);
+const compose = (...opts) => (...callbacks) =>
+	callbacks.reverse().reduce(
+		(a, call) => (e) => {
+			if (!call(...opts)(e)) a(e);
+		},
+		(e) => false
+	);
 
-	return (e) => {
-		const { open, index } = state.suggesterState;
-		if (open) {
-			switch (e.key) {
-				case KEY.ARROW_UP:
-					dispatch(actions.previousSuggestion());
-					return false;
-				case KEY.ARROW_DOWN:
-					dispatch(actions.nextSuggestion());
-					return false;
-				case KEY.ENTER:
-					if (index > -1) {
-						dispatch(actions.suggestToken(state.suggesterState.value));
-						return false;
-					}
-					return callee(e);
-				default:
-					dispatch(actions.resetSuggesterIndex());
-					return callee(e);
-			}
+/* */
+const keyDownsuggesterProxy = (dispatch, state, shortcutPattern) => (e) => {
+	const { open, index } = state.suggesterState;
+	if (open) {
+		switch (e.key) {
+			case KEY.ARROW_UP:
+				stopAndPrevent(e);
+				dispatch(actions.previousSuggestion());
+				return true;
+			case KEY.ARROW_DOWN:
+				stopAndPrevent(e);
+				dispatch(actions.nextSuggestion());
+				return true;
+			case KEY.ENTER:
+				if (index > -1) {
+					stopAndPrevent(e);
+					dispatch(actions.suggestToken(state.suggesterState.value));
+					return true;
+				}
+				return false;
+			default:
+				dispatch(actions.resetSuggesterIndex());
+				return false;
 		}
-		return callee(e);
-	};
+	}
+	return false;
 };
 
 /* */
-const keyDownCallback = (shortcutPatterns) => (dispatch, state) => (e) => {
-	if (KEY.isUnbindedKey(e.key)) return;
-	e.stopPropagation();
-	e.preventDefault();
-	if (e.ctrlKey || e.altKey) return shortcutCallback(shortcutPatterns)(dispatch, state)(e);
-	const { key } = e;
-	switch (key) {
+const keyDownCallback = (dispatch, state, shortcutPattern) => (e) => {
+	if (KEY.isUnbindedKey(e.key)) return false;
+	switch (e.key) {
 		case KEY.ARROW_UP:
 		case KEY.ARROW_DOWN:
-			dispatch({ type: key });
+			stopAndPrevent(e);
+			dispatch({ type: e.key });
 			dispatch(actions.checkIndex());
 			dispatch(actions.resetPrefix());
-			break;
+			return true;
 		case KEY.DELETE:
 		case KEY.ENTER:
 		case KEY.BACK_SPACE:
-			if (isSelection(state.selection)) {
-				dispatch(actions.deleteSelection(state.selection));
-				break;
-			}
-			dispatch({ type: key });
+			stopAndPrevent(e);
+			dispatch({ type: e.key });
 			dispatch(actions.checkPrefix());
-			break;
+			return true;
 		case KEY.PAGE_UP:
 		case KEY.PAGE_DOWN:
 		case KEY.TAB:
@@ -138,26 +144,59 @@ const keyDownCallback = (shortcutPatterns) => (dispatch, state) => (e) => {
 		case KEY.CONTEXT_MENU:
 		case KEY.ARROW_LEFT:
 		case KEY.ARROW_RIGHT:
-			dispatch({ type: key });
+			stopAndPrevent(e);
+			dispatch({ type: e.key });
 			dispatch(actions.resetPrefix());
-			break;
+			return true;
 		default:
-			if (isCharCode(key)) {
-				if (isSelection(state.selection)) {
-					dispatch(actions.deleteSelection(state.selection));
-				}
-				dispatch(actions.insertCharacter(key));
+			if (isCharCode(e.key)) {
+				dispatch(actions.insertCharacter(e.key));
 				dispatch(actions.checkPrefix());
+				return true;
 			}
-			break;
+			return false;
 	}
 };
 
 /* */
-const shortcutCallback = (patterns) => (dispatch, state) => ({ key, altKey, ctrlKey, shiftKey }) => {
-	const pattern = patterns.get({ altKey, shiftKey, ctrlKey, key });
-	pattern.execute(dispatch, state);
+const keyDownWithSelection = (dispatch, state, shortcutPatterns) => (e) => {
+	if (isSelection(state.selection)) {
+		switch (e.key) {
+			case KEY.DELETE:
+			case KEY.ENTER:
+			case KEY.BACK_SPACE:
+				stopAndPrevent(e);
+				dispatch(actions.deleteSelection());
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	return false;
 };
+
+/* */
+const keydowShorcutCallback = (dispatch, state, patterns) => (e) => {
+	console.log('%ckeydowShorcutCallback', 'color: DarkOrange ;');
+	const { altKey, shiftKey, ctrlKey, key } = e;
+	if (ctrlKey || altKey) {
+		stopAndPrevent(e);
+		return patterns.get({ altKey, shiftKey, ctrlKey, key }).execute(dispatch, state);
+	}
+	return false;
+};
+
+/* */
+const stopAndPrevent = (e) => {
+	e.stopPropagation();
+	e.preventDefault();
+};
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+// const shortcutCallback = (patterns) => (dispatch, state) => ({ key, altKey, ctrlKey, shiftKey }) => {
+// 	const pattern = patterns.get({ altKey, shiftKey, ctrlKey, key });
+// 	pattern.execute(dispatch, state);
+// };
 
 const isCharCode = (c) => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
 

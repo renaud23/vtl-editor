@@ -107,7 +107,6 @@ export const setSelection = (selection) => ({
 
 /* DELETE_SELECTION */
 export const DELETE_SELECTION = 'editor/delete-selection';
-export const deleteSelection = (selection) => ({
-	type: DELETE_SELECTION,
-	payload: { selection }
+export const deleteSelection = () => ({
+	type: DELETE_SELECTION
 });

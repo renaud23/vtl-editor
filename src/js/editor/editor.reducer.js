@@ -71,8 +71,8 @@ const reducer = (state, action) => {
 					...replaceToken(state, action.payload.suggestion),
 					prefix: undefined
 				};
-			/* */
 
+			/* */
 			case actions.EXIT_EDITOR:
 				return {
 					...state,
