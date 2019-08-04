@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, createRef } from 'react';
-import KEY from '../key-bind';
 import { EditorContext } from './editor-panel.component';
 import Line from './line.component';
 import Selector from './selector.component';
@@ -14,7 +13,7 @@ const Editor = ({ parse }) => {
 	useEffect(
 		() => {
 			const code = lines.reduce((a, { value }) => (value.length > 0 ? `${a}${value}\n` : a), '');
-			const { errors, dico } = parse(code);
+			const { errors } = parse(code);
 
 			dispatch(actions.updateErrors(errors));
 		},

@@ -177,11 +177,13 @@ const keyDownWithSelection = (dispatch, state, shortcutPatterns) => (e) => {
 };
 
 /* */
-const keydowShorcutCallback = (dispatch, state, patterns) => (e) => {
+const keydowShorcutCallback = (dispatch, state, shortcutPatterns) => (e) => {
 	const { altKey, shiftKey, ctrlKey, key } = e;
-	if (ctrlKey || altKey) {
-		stopAndPrevent(e);
-		return patterns.get({ altKey, shiftKey, ctrlKey, key }).execute(dispatch, state);
+	if (ctrlKey || altKey || shiftKey) {
+		if (key !== KEY.ALT && key !== KEY.SHIFT && key !== KEY.CONTROL) {
+			stopAndPrevent(e);
+			return shortcutPatterns.get({ altKey, shiftKey, ctrlKey, key }).execute(dispatch, state);
+		}
 	}
 	return false;
 };

@@ -8,10 +8,17 @@ import createFulTokenizer from '../create-full-tokenizer';
 import defaultPatterns from './../shortcut-patterns';
 import './editor.scss';
 
-const EditorPanel = ({ content = [], edit = true, getTokens, parse, dictionnary = {}, handleChange = () => null }) => {
+const EditorPanel = ({
+	content = [],
+	edit = true,
+	getTokens,
+	parse,
+	dictionnary = {},
+	handleChange = () => null,
+	shortcuts
+}) => {
 	const getFullTokens = createFulTokenizer(getTokens);
 	const [ state, dispatch ] = useReducer(editorReducer, getFullTokens, initializer);
-
 	useEffect(
 		() => {
 			dispatch({
@@ -22,9 +29,13 @@ const EditorPanel = ({ content = [], edit = true, getTokens, parse, dictionnary 
 		[ content ]
 	);
 
+	// const test = shortcuts || defaultPatterns;
+	// console.log(test.get('shift|ctrl|R'));
 	const suggester = useMemo(() => createSuggester(dictionnary), [ dictionnary ]);
 	return (
-		<EditorContext.Provider value={{ ...state, edit, handleChange, dispatch, shortcutPatterns: defaultPatterns }}>
+		<EditorContext.Provider
+			value={{ ...state, edit, handleChange, dispatch, shortcutPatterns: shortcuts || defaultPatterns }}
+		>
 			<div className="panel-editor">
 				<Editor getTokens={getFullTokens} parse={parse} />
 				<Suggestions suggest={suggester} />
@@ -36,6 +47,7 @@ const EditorPanel = ({ content = [], edit = true, getTokens, parse, dictionnary 
 /* */
 Editor.proTypes = {
 	getTokens: PropTypes.func.isRequired,
+	shortcuts: PropTypes.shape({ get: PropTypes.func.isRequired }),
 	handleChange: PropTypes.func,
 	content: PropTypes.arrayOf(PropTypes.shape({ value: PropTypes.string })),
 	dictionnary: PropTypes.shape({

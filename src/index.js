@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Editor } from './js/editor/components';
+import Editor from './js/editor';
 import Console from './js/console';
 import { getTokens, parse } from './js/vtl-integration';
 import * as serviceWorker from './serviceWorker';
 import { LoremIpsum } from 'lorem-ipsum';
+import { composeShortcuts } from './js/editor';
 
 import './vtl-tokens.scss';
+
+/* map order alt|shift|ctrl|key */
+const shortcuts = composeShortcuts({
+	'ctrl|s': () => {
+		console.log('save');
+		return true;
+	},
+	'shift|ctrl|R': () => {
+		console.log('Renaud est super balaise !');
+		return true;
+	}
+});
 
 const getWords = () => {
 	const lorem = new LoremIpsum({
@@ -60,6 +73,7 @@ const App = () => {
 				getTokens={getTokens}
 				parse={parse}
 				edit={true}
+				shortcuts={shortcuts}
 				handleChange={(editor) => {
 					setErrors(editor.errors);
 				}}

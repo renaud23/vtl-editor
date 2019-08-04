@@ -1,25 +1,12 @@
 import * as actions from './editor.actions';
 import { getSelection } from './selection-tools';
 
-const getPattern = ({ altKey, shiftKey, ctrlKey, key }) =>
-	`${altKey ? 'alt|' : ''}${shiftKey ? 'shift|' : ''}${ctrlKey ? 'ctrl|' : ''}${key ? key : ''}`;
-
 const SHORT_CUTS = new Map();
 
 /* */
 const unmappedPattern = (pattern) => () => {
 	console.debug(`unmapped pattern: ${pattern}`);
 	return false;
-};
-
-export default {
-	get: (model = {}) => {
-		const pattern = getPattern(model);
-
-		return {
-			execute: SHORT_CUTS.has(pattern) ? SHORT_CUTS.get(pattern) : unmappedPattern(pattern)
-		};
-	}
 };
 
 /* cut to clipboard */
@@ -67,3 +54,32 @@ SHORT_CUTS.set('ctrl|x', cut);
 SHORT_CUTS.set('ctrl|c', copy);
 SHORT_CUTS.set('ctrl|v', paste);
 SHORT_CUTS.set('ctrl|a', selectAll);
+
+const getPattern = ({ altKey, shiftKey, ctrlKey, key }) =>
+	`${altKey ? 'alt|' : ''}${shiftKey ? 'shift|' : ''}${ctrlKey ? 'ctrl|' : ''}${key ? key : ''}`;
+
+const createShortcutsProvider = (shortcutsMap) => ({
+	get: (model = {}) => {
+		const pattern = getPattern(model);
+
+		return {
+			execute: shortcutsMap.has(pattern) ? shortcutsMap.get(pattern) : unmappedPattern(pattern)
+		};
+	}
+});
+
+/* */
+export const composeShortcuts = (patterns = {}, erase = false) => {
+	const newMap = Object.entries(patterns).reduce((map, [ pattern, action ]) => {
+		if ((erase || !map.has(pattern)) && typeof action === 'function') {
+			map.set(pattern, action);
+		}
+
+		return map;
+	}, new Map(SHORT_CUTS));
+
+	return createShortcutsProvider(newMap);
+};
+
+/* */
+export default composeShortcuts(SHORT_CUTS);
