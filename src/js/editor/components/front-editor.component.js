@@ -6,6 +6,7 @@ import * as actions from '../editor.actions';
 const FrontEditor = () => {
 	const divEl = createRef();
 	const state = useContext(EditorContext);
+	const [ effectiveSel, setEffectiveSel ] = useState(undefined);
 	const { lines, dispatch, selection, handleChange, errors, shortcutPatterns } = state;
 
 	useEffect(
@@ -34,20 +35,30 @@ const FrontEditor = () => {
 					onMouseEnter={(e) => {}}
 					onMouseDown={(e) => {
 						setStart(true);
+						setEffectiveSel({ anchorRow: i });
 						dispatch(actions.setSelection({ anchorRow: i }));
 					}}
 					onMouseMove={(e) => {
+						const { anchorOffset, extentOffset } = window.getSelection();
 						if (start) {
-							const { anchorOffset, extentOffset } = window.getSelection();
+							const next = {
+								...effectiveSel,
+								extentRow: i,
+								anchorOffset,
+								extentOffset
+							};
+							setEffectiveSel(next);
+							const finalSel =
+								next && next.anchorRow > next.extentRow
+									? {
+											anchorRow: next.extentRow,
+											extentRow: next.anchorRow,
+											anchorOffset: next.extentOffset,
+											extentOffset: next.anchorOffset
+										}
+									: next;
 
-							dispatch(
-								actions.setSelection({
-									...selection,
-									extentRow: i,
-									anchorOffset,
-									extentOffset
-								})
-							);
+							dispatch(actions.setSelection(finalSel));
 						}
 					}}
 					onMouseUp={(e) => {

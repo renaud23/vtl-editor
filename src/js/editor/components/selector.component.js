@@ -8,6 +8,15 @@ const Selector = ({ lines, el }) => {
 };
 
 const Selection = ({ lines, selection }) => {
+	// const selection =
+	// 	is && is.anchorRow > is.extentRow
+	// 		? {
+	// 				anchorRow: is.extentRow,
+	// 				extentRow: is.anchorRow,
+	// 				anchorOffset: is.extentOffset,
+	// 				extentOffset: is.anchorOffset
+	// 			}
+	// 		: is;
 	return (
 		<div className="selector-2">
 			{lines.map(({ value }, i) => (
