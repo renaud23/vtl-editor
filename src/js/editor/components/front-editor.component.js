@@ -178,7 +178,6 @@ const keyDownWithSelection = (dispatch, state, shortcutPatterns) => (e) => {
 
 /* */
 const keydowShorcutCallback = (dispatch, state, patterns) => (e) => {
-	console.log('%ckeydowShorcutCallback', 'color: DarkOrange ;');
 	const { altKey, shiftKey, ctrlKey, key } = e;
 	if (ctrlKey || altKey) {
 		stopAndPrevent(e);
@@ -192,12 +191,8 @@ const stopAndPrevent = (e) => {
 	e.stopPropagation();
 	e.preventDefault();
 };
-/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-// const shortcutCallback = (patterns) => (dispatch, state) => ({ key, altKey, ctrlKey, shiftKey }) => {
-// 	const pattern = patterns.get({ altKey, shiftKey, ctrlKey, key });
-// 	pattern.execute(dispatch, state);
-// };
 
+/* */
 const isCharCode = (c) => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
 
 /* */

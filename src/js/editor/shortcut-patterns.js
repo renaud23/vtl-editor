@@ -1,4 +1,5 @@
 import * as actions from './editor.actions';
+import { getSelection } from './selection-tools';
 
 const getPattern = ({ altKey, shiftKey, ctrlKey, key }) =>
 	`${altKey ? 'alt|' : ''}${shiftKey ? 'shift|' : ''}${ctrlKey ? 'ctrl|' : ''}${key ? key : ''}`;
@@ -60,18 +61,6 @@ const copy = (dispatch, state) => {
 	}
 	return true;
 };
-
-const getSelection = ({ lines, selection: { anchorRow, anchorOffset, extentRow, extentOffset } }) =>
-	lines
-		.map(
-			({ value }, row) =>
-				row === anchorRow
-					? `${value.substr(anchorOffset, row === extentRow ? extentOffset : value.length)}`
-					: row === extentRow
-						? value.substr(0, extentOffset)
-						: row >= anchorRow && row <= extentRow ? value : null
-		)
-		.reduce((a, line) => (line ? `${a}${line}\n` : a), '');
 
 /* MAPPING */
 SHORT_CUTS.set('ctrl|x', cut);
