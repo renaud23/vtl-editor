@@ -52,13 +52,17 @@ const FrontEditor = () => {
             dispatch(actions.setSelection({ anchorRow: i }));
           }}
           onMouseMove={e => {
-            const { anchorOffset, extentOffset } = window.getSelection();
+            const {
+              anchorOffset,
+              extentOffset,
+              focusOffset
+            } = window.getSelection();
             if (start) {
               const next = {
                 ...effectiveSel,
                 extentRow: i,
                 anchorOffset,
-                extentOffset
+                extentOffset: extentOffset || focusOffset
               };
               setEffectiveSel(next);
               const finalSel =
@@ -76,8 +80,8 @@ const FrontEditor = () => {
           }}
           onMouseUp={e => {
             setStart(false);
-            const { extentOffset } = window.getSelection();
-            dispatch(actions.setCursorPosition(i, extentOffset));
+            const { extentOffset, focusOffset } = window.getSelection();
+            dispatch(actions.setCursorPosition(i, extentOffset || focusOffset));
           }}
         >
           {value}

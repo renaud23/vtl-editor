@@ -18,6 +18,10 @@
                                   supported by Chrome and Opera */
 }
 
+window ::selection {
+  background: none;
+}
+
 .panel-editor:nth-child(n) {
   ::selection {
     background: none;
@@ -61,10 +65,17 @@
     }
   }
 
-  .selector-2 {
+  .editor-overlay {
     @extend .selector;
+    position: absolute;
     z-index: 1;
     background-color: transparent;
+
+    .cursor {
+      @include cursor();
+      position: absolute;
+      left: -2px;
+    }
 
     .selected {
       background-color: rgba(91, 142, 209, 0.3);

@@ -1,4 +1,5 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
+import Cursor from "./cursor.component";
 import { EditorContext } from "./editor-panel.component";
 
 const Overlay = ({ lines, el }) => {
@@ -8,7 +9,7 @@ const Overlay = ({ lines, el }) => {
 };
 
 const Selection = ({ lines, selection }) => (
-  <div className="selector-2">
+  <div className="editor-overlay">
     {lines.map(({ value }, i) => (
       <div key={i} className="row">
         {selection &&
@@ -52,5 +53,56 @@ const Selection = ({ lines, selection }) => (
     ))}
   </div>
 );
+
+/* */
+// const DrawCursor = () => {
+//   const { lines } = useContext(EditorContext);
+
+//   return (
+//     <div className="editor-overlay">
+//       {lines.map((line, i) => (
+//         <Row key={i} line={line} numberRow={i} />
+//       ))}
+//     </div>
+//   );
+// };
+
+/* */
+// const Row = ({ line, numberRow }) => {
+//   const divEl = useRef(null);
+//   const { x, y } = divEl.current
+//     ? divEl.current.getBoundingClientRect()
+//     : { x: 0, y: 0 };
+//   return (
+//     <div ref={divEl} style={{ position: "relative" }}>
+//       {line.tokens.map((token, i) => (
+//         <Token key={i} token={token} x={x} y={y} numberRow={numberRow} />
+//       ))}
+//     </div>
+//   );
+// };
+
+/* */
+// const Token = ({ x, y, token, numberRow }) => {
+//   const { focusedRow, index } = useContext(EditorContext);
+//   if (token.tokenEl) {
+//     const r = token.tokenEl.getBoundingClientRect();
+//     return (
+//       <span
+//         style={{
+//           backgroundColor: "rgba(100,100,0,0.5)",
+//           position: "absolute",
+//           top: `${r.top - y}px`,
+//           left: `${r.left - x}px`,
+//           width: `${r.width}px`,
+//           height: `${r.height}px`
+//         }}
+//       >
+//         {numberRow === focusedRow ? <Cursor /> : null}
+//       </span>
+//     );
+//   }
+//   return null;
+// };
 
 export default Overlay;
