@@ -105,10 +105,15 @@ const reducer = (state, action) => {
       case KEY.ARROW_RIGHT:
         return reduceKeyRight(state);
       case KEY.ARROW_UP:
-        return { ...state, focusedRow: Math.max(0, state.focusedRow - 1) };
+        return {
+          ...state,
+          selection: undefined,
+          focusedRow: Math.max(0, state.focusedRow - 1)
+        };
       case KEY.ARROW_DOWN:
         return {
           ...state,
+          selection: undefined,
           focusedRow: Math.min(state.lines.length - 1, state.focusedRow + 1)
         };
       case KEY.BACK_SPACE:
@@ -193,7 +198,7 @@ const reduceKeyLeft = state => {
         : getRowLength({ ...state, focusedRow })
       : state.index - 1;
 
-  return { ...state, index, focusedRow };
+  return { ...state, selection: undefined, index, focusedRow };
 };
 
 /* ARROW_RIGHT */
@@ -210,7 +215,7 @@ const reduceKeyRight = state => {
         : 0
       : state.index + 1;
 
-  return { ...state, index, focusedRow };
+  return { ...state, selection: undefined, index, focusedRow };
 };
 /* DELETE */
 const reduceKeyDelete = ({ lines, index, focusedRow, ...rest }) => {
@@ -237,7 +242,7 @@ const reduceKeyDelete = ({ lines, index, focusedRow, ...rest }) => {
     []
   );
 
-  return { lines: nextLines, index, focusedRow, ...rest };
+  return { lines: nextLines, selection: undefined, index, focusedRow, ...rest };
 };
 
 /* BACK_SPACE */
@@ -260,6 +265,7 @@ const reduceKeyBackspace = ({ lines, index, focusedRow, ...rest }) => {
   return {
     ...rest,
     lines: newLines,
+    selection: undefined,
     focusedRow: newFocusedRow,
     index: newIndex
   };
@@ -307,6 +313,7 @@ const reduceKeyEnter = ({ focusedRow, index, lines, ...rest }) => {
   );
   return {
     focusedRow: nextFocusedRow,
+    selection: undefined,
     index: nextIndex,
     lines: nextLines,
     ...rest

@@ -58,7 +58,7 @@ const Focused = props => {
 const Unfocused = ({
   numberRow,
   numberToken,
-  token: { className, typeName, value, start, stop },
+  token: { className, typeName, value },
   cursored
 }) => {
   return (
