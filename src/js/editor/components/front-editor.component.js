@@ -40,7 +40,20 @@ const FrontEditor = () => {
     >
       <div className="overlay-container" style={{ position: "relative" }}>
         {lines.map((line, row) => (
-          <Row line={line} key={row} mx={left} my={top} row={row}>
+          <Row
+            line={line}
+            key={row}
+            mx={left}
+            my={top}
+            row={row}
+            onMouseUp={e => {
+              dispatch(actions.setCursorPosition(row, 0));
+            }}
+            onMouseDown={e => {
+              console.log("ici");
+              dispatch(actions.setCursorPosition(row, 0));
+            }}
+          >
             {line.tokens.map((token, i) => {
               return <Token token={token} key={i} row={row} mx={left} />;
             })}
@@ -51,7 +64,7 @@ const FrontEditor = () => {
   );
 };
 
-export const Row = ({ line, mx, my, children }) => {
+export const Row = ({ line, mx, my, children, onMouseUp, onMouseDown }) => {
   const { rectLine } = line;
   const [{ width, height, top, left }, setSize] = useState({
     width: 0,
@@ -76,9 +89,9 @@ export const Row = ({ line, mx, my, children }) => {
         left: `${left - mx}px`
       }}
       onMouseEnter={e => {}}
-      onMouseDown={e => {}}
+      onMouseDown={onMouseDown ? onMouseDown : e => {}}
       onMouseMove={e => {}}
-      onMouseUp={e => {}}
+      onMouseUp={onMouseUp ? onMouseUp : e => {}}
     >
       {children}
     </div>
@@ -105,6 +118,8 @@ const Token = ({ token, row, mx }) => {
   }, [token, token.tokenEl]);
   const start = token.start;
   const setCursorPosition = e => {
+    e.stopPropagation();
+    e.preventDefault();
     const posX = Math.round(e.clientX - left);
     const pos = Math.round(posX / chasse);
     const newIndex = pos + start;

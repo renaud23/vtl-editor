@@ -23,13 +23,13 @@ const Overlay = () => {
       if (token && token.tokenEl) {
         const rt = token.tokenEl.getBoundingClientRect();
         const chasse = Math.round(rt.width / token.value.length);
-
         setPosX(
           rt.left -
             left -
             line.contentEl.offsetLeft +
             chasse * (index - token.start)
         );
+        return;
       }
     }
   }, [index, focusedRow, lines]);

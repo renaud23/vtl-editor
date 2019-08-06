@@ -8,27 +8,42 @@ import { lineProps } from "../editor-prop-types";
 const Line = ({ tokens = [], number, length, index, focused }) => {
   const { lines } = useContext(EditorContext);
   const contentEl = useRef(null);
-  const rectLine = lines[number].tokens
-    .map(token =>
-      token.tokenEl ? token.tokenEl.getBoundingClientRect() : undefined
-    )
-    .reduce(
-      ({ width, height, top, left }, r) =>
-        r
-          ? {
-              width: width + r.width,
-              height: height || r.height,
-              top: top || r.top,
-              left: left || r.left
-            }
-          : { width, height },
-      {
-        width: 0,
-        height: 0,
-        top: 0,
-        left: 0
-      }
-    );
+  let rectLine;
+
+  if (lines[number].tokens.length > 0) {
+    rectLine = lines[number].tokens
+      .map(token =>
+        token.tokenEl ? token.tokenEl.getBoundingClientRect() : undefined
+      )
+      .reduce(
+        ({ width, height, top, left }, r) =>
+          r
+            ? {
+                width: width + r.width,
+                height: height || r.height,
+                top: top || r.top,
+                left: left || r.left
+              }
+            : { width, height },
+        {
+          width: 0,
+          height: 0,
+          top: 0,
+          left: 0
+        }
+      );
+  } else if (lines[number].contentEl && contentEl.current) {
+    const rl = lines[number].contentEl.getBoundingClientRect();
+    const ctLeft = contentEl.current.offsetLeft;
+    rectLine = {
+      width: 0,
+      height: 0,
+      top: rl.top,
+      left: rl.left
+    };
+
+    console.log(rectLine);
+  }
 
   if (contentEl.current) {
     lines[number].contentEl = contentEl.current;

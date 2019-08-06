@@ -7,17 +7,17 @@ import PropTypes from "prop-types";
 /* */
 const Cursor = ({ endLine = false }) => {
   const spanEl = createRef();
-  const { dispatch } = useContext(EditorContext);
-  const [rect, setRect] = useState({ x: undefined, y: undefined });
+  // const { dispatch } = useContext(EditorContext);
+  // const [rect, setRect] = useState({ x: undefined, y: undefined });
 
-  useEffect(() => {
-    const next = spanEl.current.getBoundingClientRect();
+  // useEffect(() => {
+  //   const next = spanEl.current.getBoundingClientRect();
 
-    if (next.right !== rect.right || next.bottom !== rect.bottom) {
-      setRect(next);
-      dispatch(setCursorRect(next));
-    }
-  }, [spanEl, rect, dispatch]);
+  //   if (next.right !== rect.right || next.bottom !== rect.bottom) {
+  //     setRect(next);
+  //     dispatch(setCursorRect(next));
+  //   }
+  // }, [spanEl, rect, dispatch]);
 
   return (
     <span
