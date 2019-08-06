@@ -1,108 +1,65 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useState, useEffect } from "react";
 import Cursor from "./cursor.component";
+import { Row } from "./front-editor.component";
 import { EditorContext } from "./editor-panel.component";
 
-const Overlay = ({ lines, el }) => {
-  const { selection } = useContext(EditorContext);
+const Overlay = () => {
+  const { lines, focusedRow, index } = useContext(EditorContext);
+  const divEl = useRef(null);
+  const [{ top, left }, setPosition] = useState({});
+  const [posX, setPosX] = useState(0);
 
-  return <Selection selection={selection} lines={lines} />;
-};
+  useEffect(() => {
+    if (divEl.current) {
+      const rect = divEl.current.getBoundingClientRect();
+      setPosition({ top: rect.top, left: rect.left, height: rect.height });
+    }
+  }, [divEl, setPosition]);
 
-const Selection = ({ lines, selection }) => (
-  <div className="editor-overlay">
-    {lines.map(({ value }, i) => (
-      <div key={i} className="row">
-        {selection &&
-        selection.extentOffset &&
-        i >= selection.anchorRow &&
-        i <= selection.extentRow ? (
-          i === selection.anchorRow ? (
-            [
-              <span key={0}>{value.substr(0, selection.anchorOffset)}</span>,
+  useEffect(() => {
+    if (focusedRow !== undefined) {
+      const line = lines[focusedRow];
+      const token = line.tokens.find(t => index >= t.start && index <= t.stop);
+      if (token && token.tokenEl) {
+        const rt = token.tokenEl.getBoundingClientRect();
+        const chasse = Math.round(rt.width / token.value.length);
 
-              i === selection.extentRow ? (
-                [
-                  <span key={1} className="selected">
-                    {value.substr(
-                      selection.anchorOffset,
-                      selection.extentOffset - selection.anchorOffset
-                    )}
-                  </span>,
-                  <span key={2}>{value.substr(selection.extentOffset)}</span>
-                ]
-              ) : (
-                <span key={1} className="selected">
-                  {value.substr(selection.anchorOffset)}
-                </span>
-              )
-            ]
-          ) : i === selection.extentRow ? (
-            [
-              <span className="selected" key={0}>
-                {value.substr(0, selection.extentOffset)}
-              </span>,
-              <span key={1}>{value.substr(selection.extentOffset)}</span>
-            ]
-          ) : (
-            <span className="selected">{value}</span>
-          )
-        ) : (
-          <span>{value}</span>
-        )}
+        setPosX(
+          rt.left -
+            left -
+            line.contentEl.offsetLeft +
+            chasse * (index - token.start)
+        );
+      }
+    }
+  }, [index, focusedRow, lines]);
+
+  return (
+    <div className="overlay">
+      <div
+        className="overlay-container"
+        style={{ position: "relative", zIndex: "1" }}
+        ref={divEl}
+      >
+        {lines.map((line, i) => (
+          <Row line={line} key={i} row={i} mx={left} my={top}>
+            {i === focusedRow ? (
+              <span
+                style={{
+                  width: `${posX}px`,
+                  height: "100%",
+                  display: "inline-block",
+                  backgroundColor: "rgba(0,100,100,0.5)"
+                }}
+              />
+            ) : (
+              <span />
+            )}
+          </Row>
+        ))}
       </div>
-    ))}
-  </div>
-);
-
-/* */
-// const DrawCursor = () => {
-//   const { lines } = useContext(EditorContext);
-
-//   return (
-//     <div className="editor-overlay">
-//       {lines.map((line, i) => (
-//         <Row key={i} line={line} numberRow={i} />
-//       ))}
-//     </div>
-//   );
-// };
-
-/* */
-// const Row = ({ line, numberRow }) => {
-//   const divEl = useRef(null);
-//   const { x, y } = divEl.current
-//     ? divEl.current.getBoundingClientRect()
-//     : { x: 0, y: 0 };
-//   return (
-//     <div ref={divEl} style={{ position: "relative" }}>
-//       {line.tokens.map((token, i) => (
-//         <Token key={i} token={token} x={x} y={y} numberRow={numberRow} />
-//       ))}
-//     </div>
-//   );
-// };
-
-/* */
-// const Token = ({ x, y, token, numberRow }) => {
-//   const { focusedRow, index } = useContext(EditorContext);
-//   if (token.tokenEl) {
-//     const r = token.tokenEl.getBoundingClientRect();
-//     return (
-//       <span
-//         style={{
-//           backgroundColor: "rgba(100,100,0,0.5)",
-//           position: "absolute",
-//           top: `${r.top - y}px`,
-//           left: `${r.left - x}px`,
-//           width: `${r.width}px`,
-//           height: `${r.height}px`
-//         }}
-//       >
-//         {numberRow === focusedRow ? <Cursor /> : null}
-//       </span>
-//     );
-//   }
-//   return null;
-// };
+    </div>
+  );
+};
 
 export default Overlay;

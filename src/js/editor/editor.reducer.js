@@ -8,6 +8,7 @@ const initialState = {
   index: 0,
   focusedRow: undefined,
   prefix: undefined,
+  cursorOffset: undefined,
   cursorRect: undefined,
   suggesterState: { open: false, index: -1, value: undefined, size: 0 },
   selection: undefined,
@@ -95,7 +96,8 @@ const reducer = (state, action) => {
           ...state,
           prefix: undefined,
           index: action.payload.index,
-          focusedRow: action.payload.numberRow
+          focusedRow: action.payload.numberRow,
+          cursorOffset: { left: action.payload.offsetLeft }
         };
       /* */
       case "change-editor-content":

@@ -43,7 +43,7 @@ const EditorPanel = ({
     >
       <div className="panel-editor">
         <Editor getTokens={getFullTokens} parse={parse} />
-        <Suggestions suggest={suggester} />
+        {/* <Suggestions suggest={suggester} /> */}
       </div>
     </EditorContext.Provider>
   );

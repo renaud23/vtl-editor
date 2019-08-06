@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, createRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { EditorContext } from "./editor-panel.component";
 import Line from "./line.component";
 import Overlay from "./overlay.component";
@@ -6,7 +6,7 @@ import * as actions from "./../editor.actions";
 import FrontEditor from "./front-editor.component";
 
 const Editor = ({ parse }) => {
-  const editorEl = createRef();
+  const editorEl = useRef();
   const state = useContext(EditorContext);
   const { lines, focusedRow, index, dispatch } = state;
 
@@ -22,8 +22,6 @@ const Editor = ({ parse }) => {
 
   return (
     <React.Fragment>
-      <FrontEditor lines={lines} />
-      <Overlay lines={lines} el={editorEl} />
       <div ref={editorEl} className="editor">
         {lines.map(({ tokens, value }, i) => (
           <Line
@@ -36,6 +34,8 @@ const Editor = ({ parse }) => {
           />
         ))}
       </div>
+      <FrontEditor lines={lines} />
+      <Overlay lines={lines} el={editorEl} />
     </React.Fragment>
   );
 };

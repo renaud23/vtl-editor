@@ -56,7 +56,8 @@ const content = [
   'if toto = "toto"',
   "\tthen true",
   "\t else false;",
-  "if titi >=30 then 50 else 60;"
+  "if titi >=30 then 50 else 60;",
+  "({[ \"'toto'\" ]})"
 ];
 
 const App = () => {

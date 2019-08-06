@@ -1,27 +1,24 @@
-import React, { useContext, createRef, useState, useEffect } from "react";
+import React, { useContext, useRef, useState, useEffect } from "react";
 import KEY from "../key-bind";
 import { EditorContext } from "./editor-panel.component";
 import * as actions from "../editor.actions";
 
 const FrontEditor = () => {
-  const divEl = createRef();
   const state = useContext(EditorContext);
-  const [effectiveSel, setEffectiveSel] = useState(undefined);
-  const {
-    lines,
-    dispatch,
-    handleChange,
-    errors,
-    shortcutPatterns,
-    index
-  } = state;
+  // const [effectiveSel, setEffectiveSel] = useState(undefined);
+  const { lines, dispatch, handleChange, errors, shortcutPatterns } = state;
 
   useEffect(() => {
     handleChange({ lines, errors });
   }, [lines, errors, handleChange]);
+  const divEl = useRef(null);
+  // const [start, setStart] = useState(false);
+  const [{ top, left }, setPosition] = useState({});
 
-  const [start, setStart] = useState(false);
-
+  useEffect(() => {
+    const rect = divEl.current.getBoundingClientRect();
+    setPosition({ top: rect.top, left: rect.left });
+  }, [divEl, setPosition]);
   return (
     <div
       className="front-editor"
@@ -41,53 +38,93 @@ const FrontEditor = () => {
         divEl.current.focus();
       }}
     >
-      {lines.map(({ value }, i) => (
-        <div
-          key={i}
-          className="row"
-          onMouseEnter={e => {}}
-          onMouseDown={e => {
-            setStart(true);
-            setEffectiveSel({ anchorRow: i });
-            dispatch(actions.setSelection({ anchorRow: i }));
-          }}
-          onMouseMove={e => {
-            const {
-              anchorOffset,
-              extentOffset,
-              focusOffset
-            } = window.getSelection();
-            if (start) {
-              const next = {
-                ...effectiveSel,
-                extentRow: i,
-                anchorOffset,
-                extentOffset: extentOffset || focusOffset
-              };
-              setEffectiveSel(next);
-              const finalSel =
-                next && next.anchorRow > next.extentRow
-                  ? {
-                      anchorRow: next.extentRow,
-                      extentRow: next.anchorRow,
-                      anchorOffset: next.extentOffset,
-                      extentOffset: next.anchorOffset
-                    }
-                  : next;
-
-              dispatch(actions.setSelection(finalSel));
-            }
-          }}
-          onMouseUp={e => {
-            setStart(false);
-            const { extentOffset, focusOffset } = window.getSelection();
-            dispatch(actions.setCursorPosition(i, extentOffset || focusOffset));
-          }}
-        >
-          {value}
-        </div>
-      ))}
+      <div className="overlay-container" style={{ position: "relative" }}>
+        {lines.map((line, row) => (
+          <Row line={line} key={row} mx={left} my={top} row={row}>
+            {line.tokens.map((token, i) => {
+              return <Token token={token} key={i} row={row} mx={left} />;
+            })}
+          </Row>
+        ))}
+      </div>
     </div>
+  );
+};
+
+export const Row = ({ line, mx, my, children }) => {
+  const { rectLine } = line;
+  const [{ width, height, top, left }, setSize] = useState({
+    width: 0,
+    height: 0,
+    top: 0,
+    left: 0
+  });
+  useEffect(() => {
+    if (rectLine) {
+      setSize({ ...rectLine });
+    }
+  }, [rectLine]);
+
+  return (
+    <div
+      className="row"
+      style={{
+        position: "absolute",
+        width: `${width}px`,
+        height: `${height}px`,
+        top: `${top - my}px`,
+        left: `${left - mx}px`
+      }}
+      onMouseEnter={e => {}}
+      onMouseDown={e => {}}
+      onMouseMove={e => {}}
+      onMouseUp={e => {}}
+    >
+      {children}
+    </div>
+  );
+};
+
+/* */
+const Token = ({ token, row, mx }) => {
+  const { dispatch, index, focusedRow } = useContext(EditorContext);
+  const [{ width, height, left }, setPosition] = useState({});
+  const spanEl = useRef(null);
+  const [chasse, setChasse] = useState(undefined);
+  useEffect(() => {
+    if (token.tokenEl) {
+      const r = token.tokenEl.getBoundingClientRect();
+      setPosition({
+        width: r.width,
+        height: r.height,
+        top: r.top,
+        left: r.left
+      });
+      setChasse(Math.round(r.width / token.value.length));
+    }
+  }, [token, token.tokenEl]);
+  const start = token.start;
+  const setCursorPosition = e => {
+    const posX = Math.round(e.clientX - left);
+    const pos = Math.round(posX / chasse);
+    const newIndex = pos + start;
+
+    if (index !== newIndex || row !== focusedRow) {
+      dispatch(actions.setCursorPosition(row, newIndex));
+    }
+  };
+
+  return (
+    <span
+      ref={spanEl}
+      style={{
+        display: "inline-block",
+        width: `${width}px`,
+        height: `${height}px`
+      }}
+      onMouseDown={setCursorPosition}
+      onMouseUp={setCursorPosition}
+    />
   );
 };
 
