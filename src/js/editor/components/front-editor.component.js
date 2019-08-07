@@ -85,6 +85,7 @@ export const LineEl = ({
     const { width, height, top, left } = line.dom.rect;
     return (
       <div
+        className="row"
         style={{ width, height, top, left, positon: "absolute" }}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}

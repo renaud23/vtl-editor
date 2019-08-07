@@ -1,12 +1,19 @@
-// @mixin cursor {
-//   animation: blinker 1s linear infinite;
+@mixin cursor {
+  animation: blinker 0.8s step-end infinite;
+  position: absolute;
+  font-weight: bolder;
+  &:before {
+    content: "\007c";
+    font-weight: 800;
+    color: ivory;
+  }
+}
 
-//   font-weight: bolder;
-//   &:before {
-//     content: "|";
-//     color: ivory;
-//   }
-// }
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
 
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
@@ -249,6 +256,13 @@
     /* */
     .overlay {
       @include layer(1);
+
+      .row {
+        .cursor {
+          @include cursor();
+          position: absolute;
+        }
+      }
     }
 
     /* */

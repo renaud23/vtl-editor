@@ -1,5 +1,4 @@
 import React, { useContext, useRef, useState, useEffect } from "react";
-import Cursor from "./cursor.component";
 import { LineEl } from "./front-editor.component";
 import { EditorContext } from "./editor-panel.component";
 
@@ -30,16 +29,17 @@ const Line = ({ tokens, row, left }) => {
     );
     const pos = token ? getCursorPos(token, index) : 0;
 
-    return (
+    return [
       <span
+        key={0}
         style={{
           width: pos - left,
           height: "100%",
-          display: "inline-block",
-          backgroundColor: "rgba(0,0,100,0.3)"
+          display: "inline-block"
         }}
-      />
-    );
+      />,
+      <span className="cursor" key={1} />
+    ];
   }
 
   return null;

@@ -22,7 +22,7 @@ const Cursor = ({ endLine = false }) => {
   return (
     <span
       ref={spanEl}
-      className={classnames({ "cursor-end-line": endLine, cursor: !endLine })}
+      className="cursor"
       onClick={e => e.stopPropagation()}
       onDoubleClick={e => e.stopPropagation()}
     />
