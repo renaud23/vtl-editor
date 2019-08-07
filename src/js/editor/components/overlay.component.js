@@ -24,11 +24,8 @@ const Overlay = () => {
 const Line = ({ tokens, row, left }) => {
   const { index, focusedRow } = useContext(EditorContext);
   if (row === focusedRow) {
-    const token = tokens.find(
-      ({ start, stop }) => index >= start && index <= stop
-    );
+    const token = getToken(index)(tokens);
     const pos = token ? getCursorPos(token, index) : 0;
-
     return [
       <span
         key={0}
@@ -45,6 +42,17 @@ const Line = ({ tokens, row, left }) => {
   return null;
 };
 
+const getToken = index => tokens => {
+  const token = tokens.find(
+    ({ start, stop }) => index >= start && index <= stop
+  );
+
+  return token
+    ? token
+    : tokens.length > 0
+    ? tokens[tokens.length - 1]
+    : undefined;
+};
 const getCursorPos = (token, index) => {
   const chasse = token.dom.rect.width / token.value.length;
   const curX = Math.round(token.dom.rect.left + (index - token.start) * chasse);
