@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useRef } from "react";
-import classnames from "classnames";
 import Token from "./token.component";
-import Cursor from "./cursor.component";
 import { EditorContext } from "./editor-panel.component";
 import { lineProps } from "../editor-prop-types";
 

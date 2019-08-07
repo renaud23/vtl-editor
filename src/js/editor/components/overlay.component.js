@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from "react";
+import React, { useContext } from "react";
 import { LineEl } from "./front-editor.component";
 import { EditorContext } from "./editor-panel.component";
 
