@@ -27,7 +27,7 @@ const reducer = (state, action) => {
     switch (action.type) {
       /* SELECTION */
       case actions.SET_SELECTION:
-        return { ...state, selection: action.payload.selection };
+        return setSelection(state, action.payload.selection);
       case actions.DELETE_SELECTION:
         return deleteSelection(state);
       case actions.INSERT_TEXT:
@@ -432,5 +432,7 @@ const insertInLine = index => (line, rows) => {
     rows.length === 0 ? [rows] : rows.map((row, i) => getRow(line)(rows, i));
   return newRows;
 };
+
+const setSelection = (state, selection) => ({ ...state, selection });
 
 export default reducer;

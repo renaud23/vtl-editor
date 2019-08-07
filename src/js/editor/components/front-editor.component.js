@@ -23,6 +23,7 @@ const FrontEditor = () => {
   }, [lines, handleChange, errors]);
 
   const [startSelection, setStartSelection] = useState(false);
+  const [localSel, setLocalSel] = useState({});
 
   const callbackCursorPos = (line, row) => e => {
     e.stopPropagation();
@@ -55,6 +56,7 @@ const FrontEditor = () => {
               const next = calculCursorIndex(line, e.clientX);
               if (row !== focusedRow || next !== index) {
                 dispatch(actions.setCursorPosition(row, next));
+                setLocalSel({ start: { row, index: next } });
                 dispatch(actions.setSelection({ start: { row, index: next } }));
               }
             }}
@@ -65,12 +67,30 @@ const FrontEditor = () => {
             onMouseMove={e => {
               if (startSelection) {
                 const next = calculCursorIndex(line, e.clientX);
-                dispatch(
-                  actions.setSelection({
-                    ...selection,
-                    stop: { row, index: next }
-                  })
-                );
+
+                const ls = {
+                  ...localSel,
+                  stop: {
+                    row: row,
+                    index: next
+                  }
+                };
+                setLocalSel(ls);
+                const invert =
+                  ls.stop.row < ls.start.row ||
+                  (ls.stop.row === ls.start.row &&
+                    ls.stop.index < ls.start.index);
+                if (invert) {
+                  dispatch(
+                    actions.setSelection({ start: ls.stop, stop: ls.start })
+                  );
+                  dispatch(
+                    actions.setCursorPosition(ls.stop.row, ls.stop.index)
+                  );
+                } else {
+                  dispatch(actions.setSelection(ls));
+                  dispatch(actions.setCursorPosition(row, next));
+                }
               }
             }}
           >

@@ -33,9 +33,19 @@ const Line = ({ tokens, row, left }) => {
         left={left}
       />
     ) : row === selection.start.row ? (
-      <Anchor tokens={tokens} index={selection.start.index} left={left} />
+      <Anchor
+        tokens={tokens}
+        index={selection.start.index}
+        left={left}
+        focused={row === focusedRow}
+      />
     ) : row === selection.stop.row ? (
-      <Extent tokens={tokens} index={selection.stop.index} left={left} />
+      <Extent
+        tokens={tokens}
+        index={selection.stop.index}
+        left={left}
+        focused={row === focusedRow}
+      />
     ) : (
       <Full tokens={tokens} />
     )
@@ -51,12 +61,10 @@ const Line = ({ tokens, row, left }) => {
 
 const SingleSelectionRow = ({ tokens, start, stop, left }) => {
   if (tokens.length > 0) {
-    const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
     const stt = getToken(start)(tokens);
     const startPos = stt && stt.dom ? getCursorPos(stt, start) : 0;
     const spt = getToken(stop)(tokens);
     const stopPos = spt && spt.dom ? getCursorPos(spt, stop) : 0;
-    console.log(startPos, stopPos, stopPos - startPos);
     return [
       <span
         key="start"
@@ -102,7 +110,7 @@ const Full = ({ tokens }) => {
   return null;
 };
 
-const Anchor = ({ tokens, index, left }) => {
+const Anchor = ({ tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const token = getToken(index)(tokens);
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
@@ -116,6 +124,7 @@ const Anchor = ({ tokens, index, left }) => {
           display: "inline-block"
         }}
       />,
+      focused ? <span className="cursor" key="cursor" /> : null,
       <span
         className="selection"
         style={{ width: pos + width - left }}
@@ -126,7 +135,7 @@ const Anchor = ({ tokens, index, left }) => {
   return null;
 };
 
-const Extent = ({ tokens, index, left }) => {
+const Extent = ({ tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const token = getToken(index)(tokens);
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
@@ -141,7 +150,8 @@ const Extent = ({ tokens, index, left }) => {
           display: "inline-block"
         }}
       />,
-      <span style={{ width: pos + width - left }} key="seection" />
+      <span style={{ width: pos + width - left }} key="selection" />,
+      focused ? <span className="cursor" key="cursor" /> : null
     ];
   }
   return null;
