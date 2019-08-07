@@ -22,10 +22,46 @@ const Overlay = () => {
 };
 
 const Line = ({ tokens, row, left }) => {
-  const { index, focusedRow } = useContext(EditorContext);
-  if (row === focusedRow) {
+  const { index, focusedRow, selection } = useContext(EditorContext);
+
+  return isSelectedLine(selection, row) ? (
+    row === selection.start.row ? (
+      <Anchor tokens={tokens} index={selection.start.index} left={left} />
+    ) : row === selection.stop.row ? (
+      <Extent />
+    ) : (
+      <Full tokens={tokens} />
+    )
+  ) : null;
+};
+
+const Full = ({ tokens }) => {
+  if (tokens.length > 0) {
+    const r = tokens.reduce(
+      ({ width }, token) => {
+        return { width: Math.round(width + token.dom.rect.width) };
+      },
+      { width: 0 }
+    );
+
+    return (
+      <span
+        className="selection"
+        style={{
+          width: r.width
+        }}
+      />
+    );
+  }
+  return null;
+};
+
+const Anchor = ({ tokens, index, left }) => {
+  if (tokens.length > 0) {
     const token = getToken(index)(tokens);
-    const pos = token ? getCursorPos(token, index) : 0;
+    const pos = token && token.dom ? getCursorPos(token, index) : 0;
+    const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
+    console.log(width);
     return [
       <span
         key={0}
@@ -35,12 +71,46 @@ const Line = ({ tokens, row, left }) => {
           display: "inline-block"
         }}
       />,
-      <span className="cursor" key={1} />
+      <span
+        className="selection"
+        style={{ width: pos + width - left }}
+        key={1}
+      />
     ];
   }
-
   return null;
 };
+
+const Extent = () => {
+  return <span />;
+};
+
+// const Normal = ({ row, focusedRow, index, tokens, left }) => {
+//   if (row === focusedRow) {
+//     const token = getToken(index)(tokens);
+//     const pos = token && token.dom ? getCursorPos(token, index) : 0;
+//     return [
+//       <span
+//         key={0}
+//         style={{
+//           width: pos - left,
+//           height: "100%",
+//           display: "inline-block"
+//         }}
+//       />,
+//       <span className="cursor" key={1} />
+//     ];
+//   }
+
+//   return null;
+// };
+
+const isCursorToken = () => false;
+
+const isSelectedLine = (selection, row) =>
+  selection && selection.start && selection.stop
+    ? row >= selection.start.row && row <= selection.stop.row
+    : false;
 
 const getToken = index => tokens => {
   const token = tokens.find(

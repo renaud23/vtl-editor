@@ -30,7 +30,7 @@ const EditorPanel = ({
     });
   }, [content]);
 
-  const suggester = useMemo(() => createSuggester(dictionnary), [dictionnary]);
+  // const suggester = useMemo(() => createSuggester(dictionnary), [dictionnary]);
   return (
     <EditorContext.Provider
       value={{
@@ -41,10 +41,8 @@ const EditorPanel = ({
         shortcutPatterns: shortcuts || defaultPatterns
       }}
     >
-      <div className="panel-editor">
-        <div className="row-number">
-          <span className="cursor" />
-        </div>
+      <div className="panel-editor noselect">
+        <div className="row-number">Row</div>
         <Editor getTokens={getFullTokens} parse={parse} />
         {/* <Suggestions suggest={suggester} /> */}
       </div>

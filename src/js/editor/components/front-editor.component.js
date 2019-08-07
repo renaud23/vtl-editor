@@ -12,7 +12,8 @@ const FrontEditor = () => {
     errors,
     shortcutPatterns,
     index,
-    focusedRow
+    focusedRow,
+    selection
   } = state;
 
   useEffect(() => {
@@ -21,15 +22,11 @@ const FrontEditor = () => {
     }
   }, [lines, handleChange, errors]);
 
+  const [startSelection, setStartSelection] = useState(false);
+
   const callbackCursorPos = (line, row) => e => {
     e.stopPropagation();
-    const { clientX } = e;
-    const token = line.tokens.find(token => {
-      const { left, width } = token.dom.rect;
-      return clientX >= left && clientX <= left + width;
-    });
-    const next = token ? getCursorIndex(token, clientX) : 0;
-
+    const next = calculCursorIndex(line, e.clientX);
     if (row !== focusedRow || next !== index) {
       dispatch(actions.setCursorPosition(row, next));
     }
@@ -40,14 +37,42 @@ const FrontEditor = () => {
       className="front-editor"
       tabIndex="0"
       onKeyDown={createKeydownCallback(dispatch, state, shortcutPatterns)}
+      onMouseLeave={() => {
+        setStartSelection(false);
+      }}
+      onBlur={() => {
+        setStartSelection(false);
+      }}
     >
       <div style={{ positon: "relative" }}>
         {lines.map((line, row) => (
           <LineEl
             key={row}
             line={line}
-            onMouseDown={callbackCursorPos(line, row)}
-            onMouseUp={callbackCursorPos(line, row)}
+            onMouseDown={e => {
+              setStartSelection(true);
+              e.stopPropagation();
+              const next = calculCursorIndex(line, e.clientX);
+              if (row !== focusedRow || next !== index) {
+                dispatch(actions.setCursorPosition(row, next));
+                dispatch(actions.setSelection({ start: { row, index: next } }));
+              }
+            }}
+            onMouseUp={e => {
+              setStartSelection(false);
+              callbackCursorPos(line, row)(e);
+            }}
+            onMouseMove={e => {
+              if (startSelection) {
+                const next = calculCursorIndex(line, e.clientX);
+                dispatch(
+                  actions.setSelection({
+                    ...selection,
+                    stop: { row, index: next }
+                  })
+                );
+              }
+            }}
           >
             {null}
           </LineEl>
@@ -55,6 +80,19 @@ const FrontEditor = () => {
       </div>
     </div>
   );
+};
+
+/* */
+const calculCursorIndex = (line, clientX) => {
+  const token = line.tokens.find(token => {
+    const { left, width } = token.dom.rect;
+    return clientX >= left && clientX <= left + width;
+  });
+  return token
+    ? getCursorIndex(token, clientX)
+    : line.tokens.length > 0
+    ? line.value.length
+    : 0;
 };
 
 /* */
@@ -70,7 +108,8 @@ export const LineEl = ({
   line,
   children,
   onMouseDown = () => null,
-  onMouseUp = () => null
+  onMouseUp = () => null,
+  onMouseMove = () => null
 }) => {
   if (line.dom) {
     const { width, height, top, left } = line.dom.rect;
@@ -80,13 +119,14 @@ export const LineEl = ({
         style={{ width, height, top, left, positon: "absolute" }}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
+        onMouseMove={onMouseMove}
       >
         {children}
       </div>
     );
   }
 
-  return <span>{children}</span>;
+  return null; //<span>{children}</span>;
 };
 
 export const Row = ({ line, mx, my, children, onMouseUp, onMouseDown }) => {
