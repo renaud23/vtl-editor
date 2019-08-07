@@ -1,12 +1,12 @@
-@mixin cursor {
-  animation: blinker 1s linear infinite;
+// @mixin cursor {
+//   animation: blinker 1s linear infinite;
 
-  font-weight: bolder;
-  &:before {
-    content: "|";
-    color: ivory;
-  }
-}
+//   font-weight: bolder;
+//   &:before {
+//     content: "|";
+//     color: ivory;
+//   }
+// }
 
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
@@ -18,202 +18,250 @@
                                   supported by Chrome and Opera */
 }
 
-window ::selection {
-  background: none;
+// window ::selection {
+//   background: none;
+// }
+
+// .panel-editor:nth-child(n) {
+//   ::selection {
+//     background: none;
+//   }
+// }
+
+// .panel-editor {
+//   width: 100%;
+//   height: auto;
+//   position: relative;
+//   margin-left: 150px;
+
+//   pre {
+//   }
+
+//   .selector {
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+
+//     width: 100%;
+//     height: 100%;
+//     &:focus {
+//       outline: none;
+//       background-color: transparent;
+//     }
+
+//     .row {
+//       // height: 22px;
+//       // display: flex;
+//       // flex-direction: row;
+//       // font-size: 18px;
+//       // white-space: pre;
+//       // padding-left: 41px;
+//       // color: transparent;
+//     }
+//     z-index: 2;
+//   }
+
+//   /* */
+//   .front-editor {
+//     @extend .selector;
+//     z-index: 3;
+//     .row {
+//       color: transparent;
+//     }
+//   }
+
+//   /* */
+//   .overlay {
+//     position: absolute;
+//     top: 0;
+//     z-index: 1;
+//     background-color: transparent;
+//   }
+
+//   /* */
+//   .editor {
+//     z-index: 0;
+//     border: 1px solid darkgray;
+
+//     .editor-line {
+//       height: 22px;
+//       display: flex;
+//       flex-direction: row;
+
+//       .num {
+//         display: block;
+//         padding: 0px 2px;
+//         min-width: 32px;
+//         height: 100%;
+//         background-color: #303030;
+//         color: antiquewhite;
+//         border-right: 1px solid lightgray;
+//         font-size: 12px;
+//         text-align: right;
+//       }
+
+//       &:focus {
+//         .num {
+//           background-color: #505050;
+//           color: snow;
+//         }
+
+//         .content {
+//           background-color: #505050;
+//           color: antiquewhite;
+//         }
+//       }
+
+//       .content {
+//         padding: 1px 4px;
+//         display: block;
+//         width: 100%;
+//         position: relative;
+//         background-color: #303030;
+//         color: antiquewhite;
+//         font-family: dm, Menlo, Monaco, "Courier New", monospace;
+//         letter-spacing: normal;
+//         font-size: 15px;
+//         font-weight: 400px;
+//         font-feature-settings: "liga" off, "calt" off;
+
+//         .cursor-end-line {
+//           @include cursor();
+//         }
+
+//         .cursor {
+//           @include cursor();
+//           position: absolute;
+//           left: -2px;
+//         }
+
+//         @keyframes blinker {
+//           50% {
+//             opacity: 0;
+//           }
+//         }
+
+//         .unfocused-token-selection {
+//           background-color: paleturquoise;
+//           color: snow;
+//         }
+//       }
+
+//       .token-with-cursor {
+//         .cursor-left {
+//           padding-right: 0;
+//         }
+//         .cursor-right {
+//           padding-left: 0;
+//         }
+//       }
+//       .token {
+//         white-space: pre;
+//         font-variant-ligatures: contextual;
+//       }
+
+//       /* */
+//     }
+
+//     #reset-this-parent {
+//       all: initial;
+//       * {
+//         all: unset;
+//       }
+//     }
+//   }
+// }
+
+// .editor-suggestions {
+//   display: block;
+//   position: fixed;
+//   width: auto;
+//   height: auto;
+//   padding: 2px 2px;
+//   border: solid lightgray 1px;
+//   background-color: #303030;
+//   z-index: 4;
+
+//   .active {
+//     background-color: #505050;
+//   }
+
+//   .suggestion {
+//     width: 20em;
+//     margin: 1px 0;
+//     padding: 1px 1px;
+//     color: antiquewhite;
+//     font-size: 12px;
+//     font-weight: bold;
+//     font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+
+//     &:hover {
+//       background-color: #505050;
+//       cursor: pointer;
+//     }
+//     .type {
+//       display: inline-block;
+//       width: 2em;
+//     }
+//     .valeur {
+//       .prefix {
+//         color: turquoise;
+//       }
+
+//       display: inline-block;
+//       width: 18em;
+//     }
+//   }
+// }
+
+@mixin layer($zindex) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: $zindex;
 }
 
-.panel-editor:nth-child(n) {
-  ::selection {
-    background: none;
-  }
+@mixin row {
 }
 
 .panel-editor {
-  width: 100%;
-  height: auto;
-  position: relative;
   margin-left: 150px;
+  display: flex;
+  flex-direction: row;
 
-  pre {
+  .row-number {
+    width: 50px;
+    height: 100%;
   }
 
-  .selector {
-    position: absolute;
-    top: 0;
-    left: 0;
+  .editor-container {
+    position: relative;
+    display: inline-bloc;
+    width: calc(100% - 50px);
 
-    width: 100%;
-    height: 100%;
-    &:focus {
-      outline: none;
+    /* */
+    .front-editor {
+      @include layer(2);
       background-color: transparent;
     }
-
-    .row {
-      // height: 22px;
-      // display: flex;
-      // flex-direction: row;
-      // font-size: 18px;
-      // white-space: pre;
-      // padding-left: 41px;
-      // color: transparent;
+    /* */
+    .overlay {
+      @include layer(1);
     }
-    z-index: 2;
-  }
 
-  /* */
-  .front-editor {
-    @extend .selector;
-    z-index: 3;
-    .row {
-      color: transparent;
-    }
-  }
-
-  /* */
-  .overlay {
-    position: absolute;
-    top: 0;
-    z-index: 1;
-    background-color: transparent;
-  }
-
-  /* */
-  .editor {
-    z-index: 0;
-    border: 1px solid darkgray;
-
-    .editor-line {
-      height: 22px;
-      display: flex;
-      flex-direction: row;
-
-      .num {
-        display: block;
-        padding: 0px 2px;
-        min-width: 32px;
-        height: 100%;
-        background-color: #303030;
-        color: antiquewhite;
-        border-right: 1px solid lightgray;
-        font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
-          "Lucida Sans Typewriter", "DejaVu Sans Mono",
-          "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco,
-          "Courier New", Courier, monospace;
-        font-size: 12px;
-        text-align: right;
-      }
-
-      &:focus {
-        .num {
-          background-color: #505050;
-          color: snow;
-        }
-
-        .content {
-          background-color: #505050;
-          color: antiquewhite;
-        }
-      }
-
-      .content {
-        padding: 1px 4px;
-        display: block;
-        width: 100%;
-        position: relative;
-        background-color: #303030;
-        color: antiquewhite;
-        font-family: dm, Menlo, Monaco, "Courier New", monospace;
-        letter-spacing: normal;
-        font-size: 15px;
-        font-weight: 400px;
-        font-feature-settings: "liga" off, "calt" off;
-
-        .cursor-end-line {
-          @include cursor();
-        }
-
-        .cursor {
-          @include cursor();
-          position: absolute;
-          left: -2px;
-        }
-
-        @keyframes blinker {
-          50% {
-            opacity: 0;
-          }
-        }
-
-        .unfocused-token-selection {
-          background-color: paleturquoise;
-          color: snow;
-        }
-      }
-
-      .token-with-cursor {
-        .cursor-left {
-          padding-right: 0;
-        }
-        .cursor-right {
-          padding-left: 0;
-        }
-      }
-      .token {
+    /* */
+    .editor {
+      z-index: 0;
+      .row {
         white-space: pre;
-        font-variant-ligatures: contextual;
+        height: 18px;
+        font-size: 15px;
+        font-family: Consolas, Monaco, "Courier New", Courier, monospace;
+        background-color: #505050;
+        color: antiquewhite;
       }
-
-      /* */
-    }
-
-    #reset-this-parent {
-      all: initial;
-      * {
-        all: unset;
-      }
-    }
-  }
-}
-
-.editor-suggestions {
-  display: block;
-  position: fixed;
-  width: auto;
-  height: auto;
-  padding: 2px 2px;
-  border: solid lightgray 1px;
-  background-color: #303030;
-  z-index: 4;
-
-  .active {
-    background-color: #505050;
-  }
-
-  .suggestion {
-    width: 20em;
-    margin: 1px 0;
-    padding: 1px 1px;
-    color: antiquewhite;
-    font-size: 12px;
-    font-weight: bold;
-    font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
-
-    &:hover {
-      background-color: #505050;
-      cursor: pointer;
-    }
-    .type {
-      display: inline-block;
-      width: 2em;
-    }
-    .valeur {
-      .prefix {
-        color: turquoise;
-      }
-
-      display: inline-block;
-      width: 18em;
     }
   }
 }

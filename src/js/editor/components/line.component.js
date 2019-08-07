@@ -1,79 +1,34 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import classnames from "classnames";
 import Token from "./token.component";
 import Cursor from "./cursor.component";
 import { EditorContext } from "./editor-panel.component";
 import { lineProps } from "../editor-prop-types";
 
-const Line = ({ tokens = [], number, length, index, focused }) => {
+const Line = ({ tokens = [], row, length, index, focused }) => {
   const { lines } = useContext(EditorContext);
-  const contentEl = useRef(null);
-  let rectLine;
-
-  if (lines[number].tokens.length > 0) {
-    rectLine = lines[number].tokens
-      .map(token =>
-        token.tokenEl ? token.tokenEl.getBoundingClientRect() : undefined
-      )
-      .reduce(
-        ({ width, height, top, left }, r) =>
-          r
-            ? {
-                width: width + r.width,
-                height: height || r.height,
-                top: top || r.top,
-                left: left || r.left
-              }
-            : { width, height },
-        {
-          width: 0,
-          height: 0,
-          top: 0,
-          left: 0
-        }
-      );
-  } else if (lines[number].contentEl && contentEl.current) {
-    const rl = lines[number].contentEl.getBoundingClientRect();
-    const ctLeft = contentEl.current.offsetLeft;
-    rectLine = {
-      width: 0,
-      height: 0,
-      top: rl.top,
-      left: rl.left
-    };
-
-    console.log(rectLine);
-  }
-
-  if (contentEl.current) {
-    lines[number].contentEl = contentEl.current;
-  }
-  lines[number].rectLine = rectLine;
+  const divEl = useRef(null);
+  useEffect(() => {
+    if (divEl.current) {
+      lines[row].dom = {
+        el: divEl.current,
+        rect: divEl.current.getBoundingClientRect()
+      };
+    }
+  }, [row, divEl, lines]);
   return (
-    <div className="editor-line" tabIndex="0" onBlur={e => e.stopPropagation()}>
-      <NumberLine number={number} />
-      <span className="content" ref={contentEl}>
-        {tokens.map((token, i) => (
-          <Token
-            key={`${i}-${token.value}`}
-            token={token}
-            numberRow={number}
-            numberToken={i}
-            focused={focused && index >= token.start && index <= token.stop}
-          />
-        ))}
-        {focused && index === length ? <Cursor endLine={true} /> : null}
-      </span>
+    <div ref={divEl} className="row" onBlur={e => e.stopPropagation()}>
+      {tokens.map((token, i) => (
+        <Token
+          key={`${i}-${token.value}`}
+          token={token}
+          numberRow={row}
+          numberToken={i}
+        />
+      ))}
     </div>
   );
 };
-
-/* */
-const NumberLine = ({ focused = false, number }) => (
-  <div className={classnames("num", { "num-focused": focused })}>
-    {number + 1}
-  </div>
-);
 
 Line.propTypes = lineProps;
 

@@ -21,14 +21,14 @@ const Editor = ({ parse }) => {
   }, [lines, parse, dispatch]);
 
   return (
-    <React.Fragment>
+    <div className="editor-container">
       <div ref={editorEl} className="editor">
         {lines.map(({ tokens, value }, i) => (
           <Line
             key={`${i}-line`}
             tokens={tokens}
             length={value.length}
-            number={i}
+            row={i}
             index={index}
             focused={focusedRow === i}
           />
@@ -36,7 +36,7 @@ const Editor = ({ parse }) => {
       </div>
       <FrontEditor lines={lines} />
       <Overlay lines={lines} el={editorEl} />
-    </React.Fragment>
+    </div>
   );
 };
 

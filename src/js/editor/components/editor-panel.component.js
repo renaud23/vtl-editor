@@ -42,6 +42,7 @@ const EditorPanel = ({
       }}
     >
       <div className="panel-editor">
+        <div className="row-number">R</div>
         <Editor getTokens={getFullTokens} parse={parse} />
         {/* <Suggestions suggest={suggester} /> */}
       </div>

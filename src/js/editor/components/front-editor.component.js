@@ -5,24 +5,39 @@ import * as actions from "../editor.actions";
 
 const FrontEditor = () => {
   const state = useContext(EditorContext);
-  // const [effectiveSel, setEffectiveSel] = useState(undefined);
-  const { lines, dispatch, handleChange, errors, shortcutPatterns } = state;
+  const {
+    lines,
+    dispatch,
+    handleChange,
+    errors,
+    shortcutPatterns,
+    index,
+    focusedRow
+  } = state;
 
   useEffect(() => {
-    handleChange({ lines, errors });
-  }, [lines, errors, handleChange]);
-  const divEl = useRef(null);
-  // const [start, setStart] = useState(false);
-  const [{ top, left }, setPosition] = useState({});
+    if (typeof handleChange === "function") {
+      handleChange({ lines, errors });
+    }
+  }, [lines, handleChange, errors]);
 
-  useEffect(() => {
-    const rect = divEl.current.getBoundingClientRect();
-    setPosition({ top: rect.top, left: rect.left });
-  }, [divEl, setPosition]);
+  const callbackCursorPos = (line, row) => e => {
+    e.stopPropagation();
+    const { clientX } = e;
+    const token = line.tokens.find(token => {
+      const { left, width } = token.dom.rect;
+      return clientX >= left && clientX <= left + width;
+    });
+    const next = token ? getCursorIndex(token, clientX) : 0;
+
+    if (row !== focusedRow || next !== index) {
+      dispatch(actions.setCursorPosition(row, next));
+    }
+  };
+
   return (
     <div
       className="front-editor"
-      ref={divEl}
       tabIndex="0"
       onKeyDown={compose(
         dispatch,
@@ -34,34 +49,52 @@ const FrontEditor = () => {
         keyDownsuggesterProxy,
         keyDownCallback
       )}
-      onMouseDown={e => {
-        divEl.current.focus();
-      }}
     >
-      <div className="overlay-container" style={{ position: "relative" }}>
+      <div style={{ positon: "relative" }}>
         {lines.map((line, row) => (
-          <Row
-            line={line}
+          <LineEl
             key={row}
-            mx={left}
-            my={top}
-            row={row}
-            onMouseUp={e => {
-              dispatch(actions.setCursorPosition(row, 0));
-            }}
-            onMouseDown={e => {
-              console.log("ici");
-              dispatch(actions.setCursorPosition(row, 0));
-            }}
+            line={line}
+            onMouseDown={callbackCursorPos(line, row)}
+            onMouseUp={callbackCursorPos(line, row)}
           >
-            {line.tokens.map((token, i) => {
-              return <Token token={token} key={i} row={row} mx={left} />;
-            })}
-          </Row>
+            {null}
+          </LineEl>
         ))}
       </div>
     </div>
   );
+};
+
+/* */
+const getCursorIndex = (token, clientX) => {
+  const chasse = token.dom.rect.width / token.value.length;
+  const curX = clientX - token.dom.rect.left;
+  const next = token.start + Math.round(curX / chasse);
+  return next;
+};
+
+/* */
+export const LineEl = ({
+  line,
+  children,
+  onMouseDown = () => null,
+  onMouseUp = () => null
+}) => {
+  if (line.dom) {
+    const { width, height, top, left } = line.dom.rect;
+    return (
+      <div
+        style={{ width, height, top, left, positon: "absolute" }}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  return <span>{children}</span>;
 };
 
 export const Row = ({ line, mx, my, children, onMouseUp, onMouseDown }) => {
@@ -156,6 +189,7 @@ const compose = (...opts) => (...callbacks) =>
 
 /* */
 const keyDownsuggesterProxy = (dispatch, state, shortcutPattern) => e => {
+  console.debug("%ckeyDownsuggesterProxy", "color: gold;");
   const { open, index } = state.suggesterState;
   if (open) {
     switch (e.key) {
@@ -184,6 +218,7 @@ const keyDownsuggesterProxy = (dispatch, state, shortcutPattern) => e => {
 
 /* */
 const keyDownCallback = (dispatch, state, shortcutPattern) => e => {
+  console.debug("%ckeyDownCallback", "color: gold;");
   if (KEY.isUnbindedKey(e.key)) return false;
   switch (e.key) {
     case KEY.ARROW_UP:
@@ -224,6 +259,7 @@ const keyDownCallback = (dispatch, state, shortcutPattern) => e => {
 
 /* */
 const keyDownWithSelection = (dispatch, state, shortcutPatterns) => e => {
+  console.debug("%ckeyDownWithSelection", "color: gold;");
   if (isSelection(state.selection)) {
     switch (e.key) {
       case KEY.DELETE:
@@ -242,6 +278,7 @@ const keyDownWithSelection = (dispatch, state, shortcutPatterns) => e => {
 
 /* */
 const keydowShorcutCallback = (dispatch, state, shortcutPatterns) => e => {
+  console.debug("%ckeydowShorcutCallback", "color: gold;");
   const { altKey, shiftKey, ctrlKey, key } = e;
   if (ctrlKey || altKey || shiftKey) {
     if (key !== KEY.ALT && key !== KEY.SHIFT && key !== KEY.CONTROL) {
