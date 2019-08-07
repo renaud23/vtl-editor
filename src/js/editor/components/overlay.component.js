@@ -25,14 +25,60 @@ const Line = ({ tokens, row, left }) => {
   const { index, focusedRow, selection } = useContext(EditorContext);
 
   return isSelectedLine(selection, row) ? (
-    row === selection.start.row ? (
+    row === selection.start.row && row === selection.stop.row ? (
+      <SingleSelectionRow
+        tokens={tokens}
+        start={selection.start.index}
+        stop={selection.stop.index}
+        left={left}
+      />
+    ) : row === selection.start.row ? (
       <Anchor tokens={tokens} index={selection.start.index} left={left} />
     ) : row === selection.stop.row ? (
-      <Extent />
+      <Extent tokens={tokens} index={selection.stop.index} left={left} />
     ) : (
       <Full tokens={tokens} />
     )
-  ) : null;
+  ) : (
+    <WithOutSelection
+      focused={row === focusedRow}
+      tokens={tokens}
+      index={index}
+      left={left}
+    />
+  );
+};
+
+const SingleSelectionRow = ({ tokens, start, stop, left }) => {
+  if (tokens.length > 0) {
+    const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
+    const stt = getToken(start)(tokens);
+    const startPos = stt && stt.dom ? getCursorPos(stt, start) : 0;
+    const spt = getToken(stop)(tokens);
+    const stopPos = spt && spt.dom ? getCursorPos(spt, stop) : 0;
+    console.log(startPos, stopPos, stopPos - startPos);
+    return [
+      <span
+        key="start"
+        style={{
+          width: startPos - left,
+          height: "100%",
+          display: "inline-block"
+        }}
+      />,
+      <span
+        key="selection"
+        className="selection"
+        style={{
+          width: stopPos - startPos,
+          height: "100%",
+          display: "inline-block"
+        }}
+      />
+    ];
+  }
+
+  return null;
 };
 
 const Full = ({ tokens }) => {
@@ -61,10 +107,9 @@ const Anchor = ({ tokens, index, left }) => {
     const token = getToken(index)(tokens);
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
     const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
-    console.log(width);
     return [
       <span
-        key={0}
+        key="start"
         style={{
           width: pos - left,
           height: "100%",
@@ -74,38 +119,53 @@ const Anchor = ({ tokens, index, left }) => {
       <span
         className="selection"
         style={{ width: pos + width - left }}
-        key={1}
+        key="selection"
       />
     ];
   }
   return null;
 };
 
-const Extent = () => {
-  return <span />;
+const Extent = ({ tokens, index, left }) => {
+  if (tokens.length > 0) {
+    const token = getToken(index)(tokens);
+    const pos = token && token.dom ? getCursorPos(token, index) : 0;
+    const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
+    return [
+      <span
+        key="start"
+        className="selection"
+        style={{
+          width: pos - left,
+          height: "100%",
+          display: "inline-block"
+        }}
+      />,
+      <span style={{ width: pos + width - left }} key="seection" />
+    ];
+  }
+  return null;
 };
 
-// const Normal = ({ row, focusedRow, index, tokens, left }) => {
-//   if (row === focusedRow) {
-//     const token = getToken(index)(tokens);
-//     const pos = token && token.dom ? getCursorPos(token, index) : 0;
-//     return [
-//       <span
-//         key={0}
-//         style={{
-//           width: pos - left,
-//           height: "100%",
-//           display: "inline-block"
-//         }}
-//       />,
-//       <span className="cursor" key={1} />
-//     ];
-//   }
+const WithOutSelection = ({ focused, index, tokens, left }) => {
+  if (focused) {
+    const token = getToken(index)(tokens);
+    const pos = token && token.dom ? getCursorPos(token, index) : 0;
+    return [
+      <span
+        key={0}
+        style={{
+          width: pos - left,
+          height: "100%",
+          display: "inline-block"
+        }}
+      />,
+      <span className="cursor" key={1} />
+    ];
+  }
 
-//   return null;
-// };
-
-const isCursorToken = () => false;
+  return null;
+};
 
 const isSelectedLine = (selection, row) =>
   selection && selection.start && selection.stop
