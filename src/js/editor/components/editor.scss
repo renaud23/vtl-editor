@@ -8,6 +8,20 @@
   }
 }
 
+@mixin font {
+  font-family: dm, Menlo, Monaco, "Courier New", monospace;
+  font-weight: 400;
+  font-size: 15px;
+  white-space: pre;
+}
+
+@mixin row {
+  @include font();
+  height: 22px;
+  display: flex;
+  flex-direction: row;
+}
+
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
@@ -46,11 +60,8 @@ window ::selection {
     }
 
     .row {
-      height: 22px;
-      display: flex;
-      flex-direction: row;
-      font-size: 18px;
-      white-space: pre;
+      @include row;
+
       padding-left: 41px;
       color: transparent;
     }
@@ -61,6 +72,7 @@ window ::selection {
     @extend .selector;
     z-index: 3;
     .row {
+      @include row;
       color: transparent;
     }
   }
@@ -79,7 +91,7 @@ window ::selection {
 
     .selected {
       background-color: rgba(91, 142, 209, 0.3);
-      color: transparent;
+      color: yellow;
     }
   }
 
@@ -91,7 +103,6 @@ window ::selection {
       height: 22px;
       display: flex;
       flex-direction: row;
-      font-size: 18px;
 
       .num {
         display: block;
@@ -120,13 +131,12 @@ window ::selection {
       }
 
       .content {
+        @include row;
         padding: 1px 4px;
         display: block;
         width: 100%;
         position: relative;
         background-color: #303030;
-        color: antiquewhite;
-        line-height: 18px;
 
         .cursor-end-line {
           @include cursor();
