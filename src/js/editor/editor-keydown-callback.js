@@ -11,7 +11,7 @@ const compose = (...opts) => (...callbacks) =>
 
 /* */
 const keyDownsuggesterProxy = (dispatch, state, shortcutPattern) => e => {
-  console.debug("%ckeyDownsuggesterProxy", "color: gold;");
+  // console.debug("%ckeyDownsuggesterProxy", "color: gold;");
   const { open, index } = state.suggesterState;
   if (open) {
     switch (e.key) {
@@ -90,8 +90,13 @@ const keyDownWithSelection = (dispatch, state, shortcutPatterns) => e => {
         stopAndPrevent(e);
         dispatch(actions.deleteSelection());
         return true;
-      default:
+      default: {
+        if (isCharCode(e.key)) {
+          stopAndPrevent(e);
+          dispatch(actions.deleteSelection());
+        }
         return false;
+      }
     }
   }
 
@@ -120,7 +125,8 @@ const stopAndPrevent = e => {
 };
 
 /* */
-const isCharCode = c => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
+const isCharCode = c =>
+  /^[\w-+*=/?,!;.:{}/\\$*%()"#@µ<>'~|& [\]éôêûîèäëïüöùààç]{1}$/gim.test(c); // il en manquera !
 
 /* */
 const isSelection = selection => selection && selection.stop;

@@ -59,7 +59,8 @@ const content = [
   "",
   "\t else false;",
   "if titi >=30 then 50 else 60;",
-  "({[ \"'toto'\" ]})"
+  "/* ({[ \"'toto'\" ]})",
+  " commnts */"
 ];
 
 const App = () => {
