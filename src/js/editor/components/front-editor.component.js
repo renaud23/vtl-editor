@@ -12,8 +12,7 @@ const FrontEditor = () => {
     errors,
     shortcutPatterns,
     index,
-    focusedRow,
-    selection
+    focusedRow
   } = state;
 
   useEffect(() => {

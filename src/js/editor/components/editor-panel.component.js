@@ -5,6 +5,7 @@ import Suggestions from "./sugestions.component";
 import Editor from "./editor.component";
 import createSuggester from "../suggestions-manager";
 import createFulTokenizer from "../create-full-tokenizer";
+import RowNumbers from "./row-numbers.component";
 import defaultPatterns from "./../shortcut-patterns";
 import "./editor.scss";
 
@@ -42,7 +43,7 @@ const EditorPanel = ({
       }}
     >
       <div className="panel-editor noselect">
-        <div className="row-number">Row</div>
+        <RowNumbers />
         <Editor getTokens={getFullTokens} parse={parse} />
         <Suggestions suggest={suggester} />
       </div>

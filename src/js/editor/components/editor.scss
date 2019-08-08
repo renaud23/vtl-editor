@@ -40,9 +40,29 @@ $defaultBgColor: rgb(30, 30, 30);
   display: flex;
   flex-direction: row;
 
-  .row-number {
+  .row-numbers {
     width: 50px;
-    height: 100%;
+
+    background-color: $defaultBgColor;
+    .row-numbers-container {
+      border-right: 1px solid lightslategray;
+      width: 33px;
+      .row {
+        height: 18px;
+        .num {
+          display: inline-block;
+          color: lightslategray;
+          width: 30px;
+          font-size: 13px;
+          font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+          text-align: right;
+        }
+
+        .focused {
+          color: antiquewhite;
+        }
+      }
+    }
   }
 
   .editor-container {
@@ -53,6 +73,9 @@ $defaultBgColor: rgb(30, 30, 30);
     /* */
     .front-editor {
       @include layer(2);
+      &:focus {
+        outline: none;
+      }
       background-color: transparent;
       .row {
         cursor: text;
