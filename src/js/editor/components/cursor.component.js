@@ -12,9 +12,9 @@ const Cursor = ({ endLine = false }) => {
 
   useEffect(() => {
     const next = spanEl.current.getBoundingClientRect();
+
     if (next.right !== rect.right || next.bottom !== rect.bottom) {
       setRect(next);
-
       dispatch(setCursorRect(next));
     }
   }, [spanEl, rect, dispatch]);

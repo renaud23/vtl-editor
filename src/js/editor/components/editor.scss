@@ -8,6 +8,20 @@
   }
 }
 
+@mixin font {
+  font-family: dm, Menlo, Monaco, "Courier New", monospace;
+  font-weight: 400;
+  font-size: 15px;
+  white-space: pre;
+}
+
+@mixin row {
+  @include font();
+  height: 22px;
+  display: flex;
+  flex-direction: row;
+}
+
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
@@ -16,6 +30,10 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+}
+
+window ::selection {
+  background: none;
 }
 
 .panel-editor:nth-child(n) {
@@ -28,7 +46,6 @@
   width: 100%;
   height: auto;
   position: relative;
- 
 
   .selector {
     position: absolute;
@@ -43,14 +60,10 @@
     }
 
     .row {
-      height: 22px;
-      display: flex;
-      flex-direction: row;
-      font-size: 18px;
-      white-space: pre;
-      padding-left: 39px;
-      color: transparent;
+      @include row;
 
+      padding-left: 41px;
+      color: transparent;
     }
     z-index: 2;
   }
@@ -59,31 +72,37 @@
     @extend .selector;
     z-index: 3;
     .row {
+      @include row;
       color: transparent;
     }
   }
 
-  .selector-2 {
+  .editor-overlay {
     @extend .selector;
+    position: absolute;
     z-index: 1;
     background-color: transparent;
 
+    .cursor {
+      @include cursor();
+      position: absolute;
+      left: -2px;
+    }
+
     .selected {
-      background-color: rgba(200, 0, 200, 0.3);
-      color: transparent;
+      background-color: rgba(91, 142, 209, 0.3);
+      color: yellow;
     }
   }
 
   .editor {
     z-index: 0;
     border: 1px solid darkgray;
- 
 
     .editor-line {
       height: 22px;
       display: flex;
       flex-direction: row;
-      font-size: 18px;
 
       .num {
         display: block;
@@ -108,19 +127,16 @@
         .content {
           background-color: #505050;
           color: antiquewhite;
-         
         }
       }
 
       .content {
+        @include row;
         padding: 1px 4px;
         display: block;
         width: 100%;
         position: relative;
         background-color: #303030;
-        color: antiquewhite;
-        line-height: 18px;
-       
 
         .cursor-end-line {
           @include cursor();
