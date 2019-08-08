@@ -33,10 +33,10 @@ const FrontEditor = () => {
 			tabIndex="0"
 			onKeyDown={createKeydownCallback(dispatch, state, shortcutPatterns)}
 			onMouseLeave={() => {
-				setStartSelection(false);
+				// setStartSelection(false);
 			}}
 			onBlur={() => {
-				setStartSelection(false);
+				// setStartSelection(false);
 			}}
 		>
 			<div style={{ positon: 'relative' }}>
