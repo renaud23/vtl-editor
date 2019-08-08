@@ -11,7 +11,7 @@ const compose = (...opts) => (...callbacks) =>
 
 /* */
 const keyDownsuggesterProxy = (dispatch, state, shortcutPattern) => e => {
-  console.debug("%ckeyDownsuggesterProxy", "color: gold;");
+  // console.debug("%ckeyDownsuggesterProxy", "color: gold;");
   const { open, index } = state.suggesterState;
   if (open) {
     switch (e.key) {
@@ -40,7 +40,7 @@ const keyDownsuggesterProxy = (dispatch, state, shortcutPattern) => e => {
 
 /* */
 const keyDownCallback = (dispatch, state, shortcutPattern) => e => {
-  console.debug("%ckeyDownCallback", "color: gold;");
+  // console.debug("%ckeyDownCallback", "color: gold;");
   if (KEY.isUnbindedKey(e.key)) return false;
   switch (e.key) {
     case KEY.ARROW_UP:
@@ -81,7 +81,7 @@ const keyDownCallback = (dispatch, state, shortcutPattern) => e => {
 
 /* */
 const keyDownWithSelection = (dispatch, state, shortcutPatterns) => e => {
-  console.debug("%ckeyDownWithSelection", "color: gold;");
+  // console.debug("%ckeyDownWithSelection", "color: gold;");
   if (isSelection(state.selection)) {
     switch (e.key) {
       case KEY.DELETE:
@@ -100,7 +100,7 @@ const keyDownWithSelection = (dispatch, state, shortcutPatterns) => e => {
 
 /* */
 const keydowShorcutCallback = (dispatch, state, shortcutPatterns) => e => {
-  console.debug("%ckeydowShorcutCallback", "color: gold;");
+  // console.debug("%ckeydowShorcutCallback", "color: gold;");
   const { altKey, shiftKey, ctrlKey, key } = e;
   if (ctrlKey || altKey || shiftKey) {
     if (key !== KEY.ALT && key !== KEY.SHIFT && key !== KEY.CONTROL) {
