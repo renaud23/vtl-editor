@@ -1,3 +1,4 @@
+$defaultBgColor: rgb(30, 30, 30);
 @mixin cursor {
   animation: blinker 0.8s step-end infinite;
   position: absolute;
@@ -67,7 +68,12 @@
           position: absolute;
         }
 
-        .selection {
+        .unselected {
+          height: 100%;
+          display: inline-block;
+          background-color: transparent;
+        }
+        .selected {
           height: 100%;
           display: inline-block;
           background-color: rgba(38, 79, 120, 0.6);
@@ -83,7 +89,7 @@
         height: 18px;
         font-size: 15px;
         font-family: Consolas, Monaco, "Courier New", Courier, monospace;
-        background-color: rgb(30, 30, 30);
+        background-color: $defaultBgColor;
         color: antiquewhite;
       }
     }
@@ -102,7 +108,7 @@
   z-index: 4;
 
   .active {
-    background-color: #303030;
+    background-color: #505050;
   }
 
   .suggestion {

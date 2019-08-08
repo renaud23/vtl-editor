@@ -69,19 +69,16 @@ const SingleSelectionRow = ({ tokens, start, stop, left }) => {
     return [
       <span
         key="start"
+        className="unselected"
         style={{
-          width: startPos - left,
-          height: "100%",
-          display: "inline-block"
+          width: startPos - left
         }}
       />,
       <span
-        key="selection"
-        className="selection"
+        key="selected"
+        className="selected"
         style={{
-          width: stopPos - startPos,
-          height: "100%",
-          display: "inline-block"
+          width: stopPos - startPos
         }}
       />
     ];
@@ -101,7 +98,7 @@ const Full = ({ tokens }) => {
 
     return (
       <span
-        className="selection"
+        className="selected"
         style={{
           width: r.width
         }}
@@ -116,20 +113,20 @@ const Anchor = ({ tokens, index, left, focused }) => {
     const token = getToken(index)(tokens);
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
     const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
+    console.log(width, pos);
     return [
       <span
         key="start"
+        className="unselected"
         style={{
-          width: pos - left,
-          height: "100%",
-          display: "inline-block"
+          width: pos - left
         }}
       />,
       focused ? <Cursor key="cursor" /> : null,
       <span
-        className="selection"
-        style={{ width: pos + width - left }}
-        key="selection"
+        className="selected"
+        style={{ width: width - pos + left }}
+        key="selected"
       />
     ];
   }
@@ -144,14 +141,12 @@ const Extent = ({ tokens, index, left, focused }) => {
     return [
       <span
         key="start"
-        className="selection"
+        className="selected"
         style={{
-          width: pos - left,
-          height: "100%",
-          display: "inline-block"
+          width: pos - left
         }}
       />,
-      <span style={{ width: pos + width - left }} key="selection" />,
+      <span style={{ width: pos + width - left }} key="selected" />,
       focused ? <Cursor key="cursor" /> : null
     ];
   }

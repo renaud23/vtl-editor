@@ -11,7 +11,7 @@ const compose = (...opts) => (...callbacks) =>
 
 /* */
 const keyDownsuggesterProxy = (dispatch, state, shortcutPattern) => e => {
-  // console.debug("%ckeyDownsuggesterProxy", "color: gold;");
+  console.debug("%ckeyDownsuggesterProxy", "color: gold;");
   const { open, index } = state.suggesterState;
   if (open) {
     switch (e.key) {
