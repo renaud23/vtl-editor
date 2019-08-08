@@ -105,7 +105,14 @@ const Full = ({ tokens }) => {
       />
     );
   }
-  return null;
+  return (
+    <span
+      className="selected"
+      style={{
+        width: 5
+      }}
+    />
+  );
 };
 
 const Anchor = ({ tokens, index, left, focused }) => {
@@ -113,7 +120,6 @@ const Anchor = ({ tokens, index, left, focused }) => {
     const token = getToken(index)(tokens);
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
     const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
-    console.log(width, pos);
     return [
       <span
         key="start"
