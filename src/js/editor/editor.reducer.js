@@ -8,10 +8,9 @@ const initialState = {
   index: 0,
   focusedRow: undefined,
   prefix: undefined,
-  cursorOffset: undefined,
-  cursorRect: undefined,
   suggesterState: { open: false, index: -1, value: undefined, size: 0 },
   selection: undefined,
+  cursorRect: undefined,
   errors: []
 };
 
@@ -89,15 +88,17 @@ const reducer = (state, action) => {
         return { ...state, prefix: checkPrefix(state) };
 
       /* CURSOR POSITION */
-      case actions.SET_CURSOR_RECT:
-        return { ...state, cursorRect: action.payload.rect };
       case actions.SET_CURSOR_POSITION:
         return {
           ...state,
           prefix: undefined,
           index: action.payload.index,
-          focusedRow: action.payload.numberRow,
-          cursorOffset: { left: action.payload.offsetLeft }
+          focusedRow: action.payload.numberRow
+        };
+      case actions.SET_CURSOR_RECT:
+        return {
+          ...state,
+          cursorRect: action.payload.rect
         };
       /* */
       case "change-editor-content":

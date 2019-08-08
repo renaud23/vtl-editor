@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { LineEl } from "./front-editor.component";
+import Cursor from "./cursor.component";
 import { EditorContext } from "./editor-panel.component";
 
 const Overlay = () => {
@@ -124,7 +125,7 @@ const Anchor = ({ tokens, index, left, focused }) => {
           display: "inline-block"
         }}
       />,
-      focused ? <span className="cursor" key="cursor" /> : null,
+      focused ? <Cursor key="cursor" /> : null,
       <span
         className="selection"
         style={{ width: pos + width - left }}
@@ -151,7 +152,7 @@ const Extent = ({ tokens, index, left, focused }) => {
         }}
       />,
       <span style={{ width: pos + width - left }} key="selection" />,
-      focused ? <span className="cursor" key="cursor" /> : null
+      focused ? <Cursor key="cursor" /> : null
     ];
   }
   return null;
@@ -163,14 +164,14 @@ const WithOutSelection = ({ focused, index, tokens, left }) => {
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
     return [
       <span
-        key={0}
+        key="before"
         style={{
           width: pos - left,
           height: "100%",
           display: "inline-block"
         }}
       />,
-      <span className="cursor" key={1} />
+      <Cursor key="cursor" />
     ];
   }
 

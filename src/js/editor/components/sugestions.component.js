@@ -5,9 +5,9 @@ import { EditorContext } from "./editor-panel.component";
 
 const Suggestions = ({ suggest }) => {
   const {
-    cursorRect,
     prefix,
     dispatch,
+    cursorRect,
     suggesterState: { index }
   } = useContext(EditorContext);
 
@@ -50,8 +50,8 @@ const Suggestions = ({ suggest }) => {
       <div
         className="editor-suggestions"
         style={{
-          left: `${Math.round(cursorRect.right)}px`,
-          top: `${Math.round(cursorRect.bottom)}px`
+          left: `${cursorRect.right}px`,
+          top: `${cursorRect.bottom}px`
         }}
         onMouseOver={() => {
           if (index !== -1) dispatch(actions.resetSuggesterIndex());
