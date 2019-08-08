@@ -29,6 +29,7 @@ const Line = ({ tokens, row, left }) => {
     row === selection.start.row && row === selection.stop.row ? (
       <SingleSelectionRow
         tokens={tokens}
+        index={index}
         start={selection.start.index}
         stop={selection.stop.index}
         left={left}
@@ -60,7 +61,7 @@ const Line = ({ tokens, row, left }) => {
   );
 };
 
-const SingleSelectionRow = ({ tokens, start, stop, left }) => {
+const SingleSelectionRow = ({ tokens, start, stop, index, left }) => {
   if (tokens.length > 0) {
     const stt = getToken(start)(tokens);
     const startPos = stt && stt.dom ? getCursorPos(stt, start) : 0;
@@ -74,13 +75,15 @@ const SingleSelectionRow = ({ tokens, start, stop, left }) => {
           width: startPos - left
         }}
       />,
+      index === start ? <Cursor key="cursor-start" /> : null,
       <span
         key="selected"
         className="selected"
         style={{
           width: stopPos - startPos
         }}
-      />
+      />,
+      index === stop ? <Cursor key="cursor-stop" /> : null
     ];
   }
 

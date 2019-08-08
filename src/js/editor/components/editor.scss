@@ -38,12 +38,12 @@ $rowHeight: 18px;
 }
 
 .panel-editor {
-  margin-left: 150px;
   display: flex;
   flex-direction: row;
-  overflow-x: hidden;
   background-color: $defaultBgColor;
-  width: 1600px;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
 
   .row-numbers {
     width: $numberWidth;
@@ -72,7 +72,7 @@ $rowHeight: 18px;
   .editor-container {
     position: relative;
     display: inline-bloc;
-    width: calc(100% - $numberWidth);
+    width: 100%; //calc(100% - $numberWidth);
 
     /* */
     .front-editor {

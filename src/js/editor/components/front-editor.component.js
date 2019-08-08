@@ -43,6 +43,7 @@ const FrontEditor = () => {
       onBlur={() => {
         setStartSelection(false);
       }}
+      onMouseDown={() => console.log("ooo")}
     >
       <div style={{ positon: "relative" }}>
         {lines.map((line, row) => (
@@ -52,6 +53,7 @@ const FrontEditor = () => {
             onMouseDown={e => {
               setStartSelection(true);
               e.stopPropagation();
+              console.log("ici");
               const next = calculCursorIndex(line, getClientX(e));
               if (row !== focusedRow || next !== index) {
                 dispatch(actions.setCursorPosition(row, next));
