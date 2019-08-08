@@ -360,7 +360,7 @@ const deleteSelection = state => {
   const lines = state.lines
     .reduce(
       (a, line, i) =>
-        i >= selection.anchorRow && i <= selection.extentRow
+        i >= selection.start.row && i <= selection.stop.row
           ? [...a, deleteOnRow(selection)(line, i)]
           : [...a, line],
       []
@@ -369,23 +369,20 @@ const deleteSelection = state => {
   return {
     ...state,
     lines: lines.length > 0 ? lines : [{ value: "", tokens: [] }],
-    focusedRow: selection.anchorRow,
-    index: selection.anchorOffset,
+    focusedRow: selection.start.row,
+    index: selection.start.index,
     selection: undefined
   };
 };
 
-const deleteOnRow = ({ anchorRow, extentRow, anchorOffset, extentOffset }) => (
-  { value },
-  row
-) => {
+const deleteOnRow = ({ start, stop }) => ({ value }, row) => {
   const next =
-    row === anchorRow
-      ? `${value.substr(0, anchorOffset)}${
-          row === extentRow ? value.substr(extentOffset) : ""
+    row === start.row
+      ? `${value.substr(0, start.index)}${
+          row === stop.row ? value.substr(stop.index) : ""
         }`
-      : row === extentRow
-      ? value.substr(extentOffset)
+      : row === stop.row
+      ? value.substr(stop.index)
       : "";
   return getNewRow(next);
 };

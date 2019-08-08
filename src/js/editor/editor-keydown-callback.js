@@ -123,7 +123,7 @@ const stopAndPrevent = e => {
 const isCharCode = c => true; //c && /[\w!@#$%^&*(),.?":{}|<>].{1}/g.test(c);
 
 /* */
-const isSelection = selection => selection && selection.extentOffset;
+const isSelection = selection => selection && selection.stop;
 
 /* */
 export default (dispatch, state, shortcutPatterns) =>
