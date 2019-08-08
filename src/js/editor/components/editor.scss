@@ -1,4 +1,6 @@
 $defaultBgColor: rgb(30, 30, 30);
+$numberWidth: 50px;
+$rowHeight: 18px;
 @mixin cursor {
   animation: blinker 0.8s step-end infinite;
   position: absolute;
@@ -39,16 +41,18 @@ $defaultBgColor: rgb(30, 30, 30);
   margin-left: 150px;
   display: flex;
   flex-direction: row;
+  overflow-x: hidden;
+  background-color: $defaultBgColor;
+  width: 1600px;
 
   .row-numbers {
-    width: 50px;
+    width: $numberWidth;
 
-    background-color: $defaultBgColor;
     .row-numbers-container {
       border-right: 1px solid lightslategray;
       width: 33px;
       .row {
-        height: 18px;
+        height: $rowHeight;
         .num {
           display: inline-block;
           color: lightslategray;
@@ -68,7 +72,7 @@ $defaultBgColor: rgb(30, 30, 30);
   .editor-container {
     position: relative;
     display: inline-bloc;
-    width: calc(100% - 50px);
+    width: calc(100% - $numberWidth);
 
     /* */
     .front-editor {

@@ -26,7 +26,7 @@ const FrontEditor = () => {
 
   const callbackCursorPos = (line, row) => e => {
     e.stopPropagation();
-    const next = calculCursorIndex(line, e.clientX);
+    const next = calculCursorIndex(line, getClientX(e));
     if (row !== focusedRow || next !== index) {
       dispatch(actions.setCursorPosition(row, next));
     }
@@ -52,7 +52,7 @@ const FrontEditor = () => {
             onMouseDown={e => {
               setStartSelection(true);
               e.stopPropagation();
-              const next = calculCursorIndex(line, e.clientX);
+              const next = calculCursorIndex(line, getClientX(e));
               if (row !== focusedRow || next !== index) {
                 dispatch(actions.setCursorPosition(row, next));
                 setLocalSel({ start: { row, index: next } });
@@ -65,7 +65,7 @@ const FrontEditor = () => {
             }}
             onMouseMove={e => {
               if (startSelection) {
-                const next = calculCursorIndex(line, e.clientX);
+                const next = calculCursorIndex(line, getClientX(e));
 
                 const ls = {
                   ...localSel,
@@ -102,9 +102,17 @@ const FrontEditor = () => {
 };
 
 /* */
+const getClientX = e => {
+  // const doc = document.documentElement;
+  // const scrollLeft =
+  //   (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+  return e.clientX; //+ scrollLeft;
+};
+
+/* */
 const calculCursorIndex = (line, clientX) => {
   const token = line.tokens.find(token => {
-    const { left, width } = token.dom.rect;
+    const { left, width } = token.dom.el.getBoundingClientRect();
     return clientX >= left && clientX <= left + width;
   });
   return token
@@ -116,8 +124,9 @@ const calculCursorIndex = (line, clientX) => {
 
 /* */
 const getCursorIndex = (token, clientX) => {
-  const chasse = token.dom.rect.width / token.value.length;
-  const curX = clientX - token.dom.rect.left;
+  const { width, left } = token.dom.el.getBoundingClientRect();
+  const chasse = width / token.value.length;
+  const curX = clientX - left;
   const next = token.start + Math.round(curX / chasse);
   return next;
 };
@@ -131,7 +140,7 @@ export const LineEl = ({
   onMouseMove = () => null
 }) => {
   if (line.dom) {
-    const { width, height, top, left } = line.dom.rect;
+    const { width, height, top, left } = line.dom.el.getBoundingClientRect();
     return (
       <div
         className="row"

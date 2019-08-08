@@ -13,7 +13,7 @@ const Overlay = () => {
             <Line
               tokens={line.tokens}
               row={row}
-              left={line.dom ? line.dom.rect.left : 0}
+              left={line.dom ? line.dom.el.getBoundingClientRect().left : 0}
             />
           </LineEl>
         ))}
@@ -91,7 +91,9 @@ const Full = ({ tokens }) => {
   if (tokens.length > 0) {
     const r = tokens.reduce(
       ({ width }, token) => {
-        return { width: Math.round(width + token.dom.rect.width) };
+        return {
+          width: Math.round(width + token.dom.el.getBoundingClientRect().width)
+        };
       },
       { width: 0 }
     );
@@ -119,7 +121,10 @@ const Anchor = ({ tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const token = getToken(index)(tokens);
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
-    const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
+    const width = tokens.reduce(
+      (a, t) => a + t.dom.el.getBoundingClientRect().width,
+      0
+    );
     return [
       <span
         key="start"
@@ -143,7 +148,10 @@ const Extent = ({ tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const token = getToken(index)(tokens);
     const pos = token && token.dom ? getCursorPos(token, index) : 0;
-    const width = tokens.reduce((a, t) => a + t.dom.rect.width, 0);
+    const width = tokens.reduce(
+      (a, t) => a + t.dom.el.getBoundingClientRect().width,
+      0
+    );
     return [
       <span
         key="start"
@@ -196,8 +204,9 @@ const getToken = index => tokens => {
     : undefined;
 };
 const getCursorPos = (token, index) => {
-  const chasse = token.dom.rect.width / token.value.length;
-  const curX = Math.round(token.dom.rect.left + (index - token.start) * chasse);
+  const { width, left } = token.dom.el.getBoundingClientRect();
+  const chasse = width / token.value.length;
+  const curX = Math.round(left + (index - token.start) * chasse);
   return curX;
 };
 

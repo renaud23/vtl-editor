@@ -302,7 +302,6 @@ const removeCharFromRow = ({ lines, focusedRow, index }) =>
 /* ENTER */
 const reduceKeyEnter = ({ focusedRow, index, lines, ...rest }) => {
   const nextFocusedRow = focusedRow + 1;
-  const nextIndex = 0;
   const nextLines = lines.reduce(
     (a, line, i) =>
       i === focusedRow
@@ -317,7 +316,7 @@ const reduceKeyEnter = ({ focusedRow, index, lines, ...rest }) => {
   return {
     focusedRow: nextFocusedRow,
     selection: undefined,
-    index: nextIndex,
+    index: 0,
     lines: nextLines,
     ...rest
   };

@@ -9,8 +9,7 @@ const Line = ({ tokens = [], row, length, index, focused }) => {
   useEffect(() => {
     if (divEl.current) {
       lines[row].dom = {
-        el: divEl.current,
-        rect: divEl.current.getBoundingClientRect()
+        el: divEl.current
       };
     }
   }, [row, divEl, lines]);

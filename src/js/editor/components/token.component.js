@@ -15,8 +15,7 @@ const Token = ({
   useEffect(() => {
     if (tokenEl.current) {
       lines[numberRow].tokens[numberToken].dom = {
-        el: tokenEl.current,
-        rect: tokenEl.current.getBoundingClientRect()
+        el: tokenEl.current
       };
     }
   }, [tokenEl, lines, numberRow, numberToken]);
