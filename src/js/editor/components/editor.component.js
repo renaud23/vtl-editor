@@ -25,7 +25,7 @@ const Editor = ({ parse }) => {
       <div ref={editorEl} className="editor">
         {lines.map(({ tokens, value }, i) => (
           <Line
-            key={`${i}-line`}
+            key={`${i}-${value}`}
             tokens={tokens}
             length={value.length}
             row={i}

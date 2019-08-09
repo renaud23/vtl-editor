@@ -3,7 +3,7 @@ import Token from "./token.component";
 import { EditorContext } from "./editor-panel.component";
 import { lineProps } from "../editor-prop-types";
 
-const Line = ({ tokens = [], row, length, index, focused }) => {
+const Line = ({ tokens = [], row }) => {
   const { lines } = useContext(EditorContext);
   const divEl = useRef(null);
   useEffect(() => {
@@ -13,6 +13,7 @@ const Line = ({ tokens = [], row, length, index, focused }) => {
       };
     }
   }, [row, divEl, lines]);
+
   return (
     <div ref={divEl} className="row" onBlur={e => e.stopPropagation()}>
       {tokens.map((token, i) => (

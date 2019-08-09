@@ -19,7 +19,6 @@ const Token = ({
       };
     }
   }, [tokenEl, lines, numberRow, numberToken]);
-
   return (
     <span
       ref={tokenEl}
@@ -35,4 +34,4 @@ const Token = ({
 
 Token.propTypes = tokenProps;
 
-export default Token;
+export default React.memo(Token);
