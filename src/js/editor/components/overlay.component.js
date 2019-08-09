@@ -80,12 +80,18 @@ const Line = ({ tokensEl, tokens, row, left }) => {
   );
 };
 
-const SingleSelectionRow = ({ tokens, start, stop, index, left }) => {
+const SingleSelectionRow = ({ tokensEl, tokens, start, stop, index, left }) => {
   if (tokens.length > 0) {
     const stt = getToken(start)(tokens);
-    const startPos = stt && stt.dom ? getCursorPos(stt, start) : 0;
+    const startPos =
+      stt.idx && tokensEl[stt.idx]
+        ? getCursorPos(tokensEl[stt.idx], stt.token, start)
+        : 0;
     const spt = getToken(stop)(tokens);
-    const stopPos = spt && spt.dom ? getCursorPos(spt, stop) : 0;
+    const stopPos =
+      spt.idx && tokensEl[spt.idx]
+        ? getCursorPos(tokensEl[spt.idx], spt.token, stop)
+        : 0;
     return [
       <span
         key="start"
@@ -109,12 +115,12 @@ const SingleSelectionRow = ({ tokens, start, stop, index, left }) => {
   return null;
 };
 
-const Full = ({ tokens }) => {
+const Full = ({ tokensEl, tokens }) => {
   if (tokens.length > 0) {
     const r = tokens.reduce(
-      ({ width }, token) => {
+      ({ width }, token, idx) => {
         return {
-          width: Math.round(width + token.dom.el.getBoundingClientRect().width)
+          width: Math.round(width + tokensEl[idx].getBoundingClientRect().width)
         };
       },
       { width: 0 }
@@ -139,12 +145,15 @@ const Full = ({ tokens }) => {
   );
 };
 
-const Anchor = ({ tokens, index, left, focused }) => {
+const Anchor = ({ tokensEl, tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const { token, idx } = getToken(index)(tokens);
-    const pos = token && token.dom ? getCursorPos(token, index) : 0;
+    const pos =
+      idx !== undefined && tokensEl
+        ? getCursorPos(tokensEl[idx], token, index)
+        : 0;
     const width = tokens.reduce(
-      (a, t) => a + t.dom.el.getBoundingClientRect().width,
+      (a, t, i) => a + tokensEl[i].getBoundingClientRect().width,
       0
     );
     return [
@@ -166,12 +175,15 @@ const Anchor = ({ tokens, index, left, focused }) => {
   return null;
 };
 
-const Extent = ({ tokens, index, left, focused }) => {
+const Extent = ({ tokensEl, tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const { token, idx } = getToken(index)(tokens);
-    const pos = token && token.dom ? getCursorPos(token, index) : 0;
+    const pos =
+      idx !== undefined && tokensEl
+        ? getCursorPos(tokensEl[idx], token, index)
+        : 0;
     const width = tokens.reduce(
-      (a, t) => a + t.dom.el.getBoundingClientRect().width,
+      (a, t, i) => a + tokensEl[i].getBoundingClientRect().width,
       0
     );
     return [
