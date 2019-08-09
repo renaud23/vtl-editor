@@ -37,6 +37,14 @@ const FrontEditor = () => {
       dispatch(actions.setCursorPosition(row, next));
     }
   };
+  document.addEventListener("mouseup", e => {
+    e.stopImmediatePropagation();
+    setStartSelection(false);
+  });
+
+  // document.addEventListener("mousemove", e => {
+  //   console.log("mousemove");
+  // });
 
   return (
     <div
@@ -44,7 +52,7 @@ const FrontEditor = () => {
       tabIndex="0"
       onKeyDown={callbackKeyDown}
       onMouseLeave={() => {
-        setStartSelection(false);
+        // setStartSelection(false);
       }}
       onBlur={() => {
         // setStartSelection(false);
@@ -72,7 +80,6 @@ const FrontEditor = () => {
             onMouseMove={e => {
               if (startSelection) {
                 const next = calculCursorIndex(line, getClientX(e));
-
                 const ls = {
                   ...localSel,
                   stop: {
