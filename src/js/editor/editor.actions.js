@@ -110,3 +110,7 @@ export const DELETE_SELECTION = "editor/delete-selection";
 export const deleteSelection = () => ({
   type: DELETE_SELECTION
 });
+
+/* SCROLL UP */
+
+/* SCROLL DOWN */

@@ -49,14 +49,13 @@ const ScrollRight = ({ parentEl }) => {
   const { lines, scrollRange } = useContext(EditorContext);
   if (parentEl) {
     const offset = scrollRange.stop - scrollRange.start + 1;
-    const { height } = parentEl.getBoundingClientRect();
-    const ration = offset / lines.length;
-    const dgHeight = Math.max(ration * height, 10);
-    // const dgStart= ratio
+    const { height } = parentEl.getBoundingClientRect(); 
+    const dgHeight = Math.max(offset / lines.length * height, 10);
+    const dgStart= scrollRange.start / lines.length * height;
     console.log(dgHeight);
     return (
       <div className="scroll-right" style={{ height }}>
-        <span className="dragger" style={{ height: dgHeight }} />
+        <span className="dragger" style={{ height: dgHeight, top: dgStart }} />
       </div>
     );
   }

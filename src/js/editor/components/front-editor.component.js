@@ -60,6 +60,12 @@ const FrontEditor = () => {
       onBlur={() => {
         // setStartSelection(false);
       }}
+      onWheel={e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const delta = e.deltaY;
+      }}
     >
       <div style={{ positon: "relative" }}>
         {visiblesLines.map((line, i) => {

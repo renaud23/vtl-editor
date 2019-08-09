@@ -74,6 +74,7 @@ $rowHeight: 22px;
     width: 100%; //calc(100% - $numberWidth);
 
     .scroll-right {
+      position: relative;
       width: 12px;
       background-color: yellow;
       position: absolute;
@@ -81,6 +82,7 @@ $rowHeight: 22px;
       top: 0;
 
       .dragger {
+        position:absolute;
         display: inline-block;
         background-color: red;
         width: 12px;
