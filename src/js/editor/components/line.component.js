@@ -1,18 +1,18 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, createRef } from "react";
 import Token from "./token.component";
 import { EditorContext } from "./editor-panel.component";
 import { lineProps } from "../editor-prop-types";
 
 const Line = ({ tokens = [], row }) => {
-  const { lines } = useContext(EditorContext);
-  const divEl = useRef(null);
+  const { scrollRange, dom, lines } = useContext(EditorContext);
+  const divEl = createRef();
+  const tokensEl = tokens.map(() => createRef());
   useEffect(() => {
-    if (divEl.current) {
-      lines[row].dom = {
-        el: divEl.current
-      };
+    if (divEl.current && tokensEl) {
+      dom.lines[row] = divEl.current;
+      dom.tokens[row] = tokensEl.map(l => l.current);
     }
-  }, [row, divEl, lines]);
+  }, [row, divEl, dom, scrollRange.start, tokensEl]);
 
   return (
     <div ref={divEl} className="row" onBlur={e => e.stopPropagation()}>
@@ -20,6 +20,7 @@ const Line = ({ tokens = [], row }) => {
         <Token
           key={`${i}-${token.value}`}
           token={token}
+          ref={tokensEl[i]}
           numberRow={row}
           numberToken={i}
         />

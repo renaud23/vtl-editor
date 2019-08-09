@@ -4,6 +4,8 @@ import * as actions from "./editor.actions";
 let getTokens_ = undefined;
 /* */
 const initialState = {
+  dom: { lines: [], tokens: [] },
+  scrollRange: { start: 10, stop: 12 },
   lines: [{ value: "", tokens: [] }],
   index: 0,
   focusedRow: undefined,
@@ -145,7 +147,7 @@ const reducer = (state, action) => {
         return state;
     }
   })();
-  //   console.debug("%cDebug", "color: purple;", { action, state, newState });
+  console.debug("%cDebug", "color: purple;", { action, state, newState });
   return newState;
 };
 

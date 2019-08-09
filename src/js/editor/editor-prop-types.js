@@ -18,15 +18,12 @@ export const tokenProps = {
 };
 
 export const lineProps = {
-  length: propTypes.number.isRequired,
   tokens: propTypes.arrayOf(
     propTypes.shape({
       ...token
     })
   ),
-  row: propTypes.number.isRequired,
-  index: propTypes.number,
-  focused: propTypes.bool.isRequired
+  row: propTypes.number.isRequired
 };
 
 export const EditorProps = {};

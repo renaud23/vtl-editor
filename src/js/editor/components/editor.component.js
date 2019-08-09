@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { EditorContext } from "./editor-panel.component";
 import Line from "./line.component";
 import Overlay from "./overlay.component";
@@ -8,7 +8,7 @@ import FrontEditor from "./front-editor.component";
 const Editor = ({ parse }) => {
   const editorEl = useRef();
   const state = useContext(EditorContext);
-  const { lines, focusedRow, index, dispatch } = state;
+  const { lines, focusedRow, index, dispatch, scrollRange } = state;
 
   useEffect(() => {
     const code = lines.reduce(
@@ -20,18 +20,22 @@ const Editor = ({ parse }) => {
     dispatch(actions.updateErrors(errors));
   }, [lines, parse, dispatch]);
 
+  const [visiblesLines, setVisiblesLines] = useState([]);
+  useEffect(() => {
+    setVisiblesLines(
+      lines.reduce(
+        (a, line, i) =>
+          i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
+        []
+      )
+    );
+  }, [lines, scrollRange.start, scrollRange.stop]);
+
   return (
     <div className="editor-container">
       <div ref={editorEl} className="editor">
-        {lines.map(({ tokens, value }, i) => (
-          <Line
-            key={`${i}-${value}`}
-            tokens={tokens}
-            length={value.length}
-            row={i}
-            index={index}
-            focused={focusedRow === i}
-          />
+        {visiblesLines.map(({ tokens, value }, i) => (
+          <Line key={`${i}-${value}`} tokens={tokens} row={i} />
         ))}
       </div>
       <FrontEditor lines={lines} />

@@ -1,32 +1,11 @@
-import React, { useContext, useRef, useEffect } from "react";
+import React from "react";
 import classnames from "classnames";
-import { EditorContext } from "./editor-panel.component";
 import { tokenProps } from "../editor-prop-types";
 
 /* */
-const Token = ({
-  numberRow,
-  numberToken,
-  token: { className, typeName, value },
-  cursored
-}) => {
-  const { lines } = useContext(EditorContext);
-  const tokenEl = useRef(null);
-  useEffect(() => {
-    if (tokenEl.current) {
-      lines[numberRow].tokens[numberToken].dom = {
-        el: tokenEl.current
-      };
-    }
-  }, [tokenEl, lines, numberRow, numberToken]);
+const Token = ({ refEl, token: { className, typeName, value }, cursored }) => {
   return (
-    <span
-      ref={tokenEl}
-      className={classnames("token", className, {
-        "cursor-left": cursored === "left",
-        "cursor-right": cursored === "right"
-      })}
-    >
+    <span ref={refEl} className={classnames("token", className, {})}>
       {value}
     </span>
   );
@@ -34,4 +13,6 @@ const Token = ({
 
 Token.propTypes = tokenProps;
 
-export default React.memo(Token);
+export default React.forwardRef((props, ref) => (
+  <Token refEl={ref} {...props} />
+));

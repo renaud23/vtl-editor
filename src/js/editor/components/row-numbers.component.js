@@ -3,14 +3,21 @@ import classnames from "classnames";
 import { EditorContext } from "./editor-panel.component";
 
 const RowNumbers = () => {
-  const { lines, focusedRow } = useContext(EditorContext);
+  const { scrollRange, focusedRow } = useContext(EditorContext);
+  const offset = scrollRange.stop - scrollRange.start + 1;
+  const numbers = new Array(offset)
+    .fill(scrollRange.start + 1)
+    .map((s, i) => s + i);
+
   return (
     <div className="row-numbers">
       <div className="row-numbers-container">
-        {lines.map((l, i) => (
-          <div className="row" key={i}>
-            <span className={classnames("num", { focused: i === focusedRow })}>
-              {i + 1}
+        {numbers.map(o => (
+          <div className="row" key={o}>
+            <span
+              className={classnames("num", { focused: o - 1 === focusedRow })}
+            >
+              {o}
             </span>
           </div>
         ))}
