@@ -1,6 +1,6 @@
 $defaultBgColor: rgb(30, 30, 30);
 $numberWidth: 50px;
-$rowHeight: 18px;
+$rowHeight: 22px;
 @mixin cursor {
   animation: blinker 0.8s step-end infinite;
   position: absolute;
@@ -71,8 +71,21 @@ $rowHeight: 18px;
 
   .editor-container {
     position: relative;
-    display: inline-bloc;
     width: 100%; //calc(100% - $numberWidth);
+
+    .scroll-right {
+      width: 12px;
+      background-color: yellow;
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      .dragger {
+        display: inline-block;
+        background-color: red;
+        width: 12px;
+      }
+    }
 
     /* */
     .front-editor {
@@ -113,7 +126,7 @@ $rowHeight: 18px;
       z-index: 0;
       .row {
         white-space: pre;
-        height: 18px;
+        height: $rowHeight;
         font-size: 15px;
         font-family: Consolas, Monaco, "Courier New", Courier, monospace;
         background-color: $defaultBgColor;

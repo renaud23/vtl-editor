@@ -5,7 +5,7 @@ let getTokens_ = undefined;
 /* */
 const initialState = {
   dom: { lines: [], tokens: [] },
-  scrollRange: { start: 10, stop: 18 },
+  scrollRange: { start: 10, stop: 40 },
   lines: [{ value: "", tokens: [] }],
   index: 0,
   focusedRow: undefined,
