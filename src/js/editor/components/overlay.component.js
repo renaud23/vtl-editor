@@ -86,12 +86,12 @@ const SingleSelectionRow = ({ tokensEl, tokens, start, stop, index, left }) => {
     const startPos =
       stt.idx && tokensEl[stt.idx]
         ? getCursorPos(tokensEl[stt.idx], stt.token, start)
-        : 0;
+        : undefined;
     const spt = getToken(stop)(tokens);
     const stopPos =
       spt.idx && tokensEl[spt.idx]
         ? getCursorPos(tokensEl[spt.idx], spt.token, stop)
-        : 0;
+        : undefined;
     return [
       <span
         key="start"
@@ -120,7 +120,9 @@ const Full = ({ tokensEl, tokens }) => {
     const r = tokens.reduce(
       ({ width }, token, idx) => {
         return {
-          width: Math.round(width + tokensEl[idx].getBoundingClientRect().width)
+          width: tokensEl[idx]
+            ? Math.round(width + tokensEl[idx].getBoundingClientRect().width)
+            : undefined
         };
       },
       { width: 0 }
@@ -149,9 +151,9 @@ const Anchor = ({ tokensEl, tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const { token, idx } = getToken(index)(tokens);
     const pos =
-      idx !== undefined && tokensEl
+      idx !== undefined && tokensEl[idx]
         ? getCursorPos(tokensEl[idx], token, index)
-        : 0;
+        : undefined;
     const width = tokens.reduce(
       (a, t, i) => a + tokensEl[i].getBoundingClientRect().width,
       0
@@ -179,9 +181,9 @@ const Extent = ({ tokensEl, tokens, index, left, focused }) => {
   if (tokens.length > 0) {
     const { token, idx } = getToken(index)(tokens);
     const pos =
-      idx !== undefined && tokensEl
+      idx !== undefined && tokensEl[idx]
         ? getCursorPos(tokensEl[idx], token, index)
-        : 0;
+        : undefined;
     const width = tokens.reduce(
       (a, t, i) => a + tokensEl[i].getBoundingClientRect().width,
       0
@@ -205,9 +207,10 @@ const WithOutSelection = ({ tokensEl, focused, index, tokens, left }) => {
   if (focused) {
     const { token, idx } = getToken(index)(tokens);
     const pos =
-      idx !== undefined && tokensEl
+      idx !== undefined && tokensEl[idx]
         ? getCursorPos(tokensEl[idx], token, index)
-        : 0;
+        : undefined;
+
     return [
       <span
         key="before"
@@ -240,7 +243,7 @@ const getToken = index => tokens => {
         : { token, idx },
     { token: undefined, idx: undefined }
   );
-
+  // console.log(index, token, tokens.reduce((a, t) => `${a}|${t.value}`, ""));
   return token
     ? { token, idx }
     : tokens.length > 0

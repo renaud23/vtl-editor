@@ -1,7 +1,8 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, createRef } from "react";
 import { EditorContext } from "./editor-panel.component";
 import createKeydownCallback from "./../editor-keydown-callback";
 import * as actions from "../editor.actions";
+import { directiveLiteral } from "@babel/types";
 
 const FrontEditor = () => {
   const state = useContext(EditorContext);
@@ -49,8 +50,30 @@ const FrontEditor = () => {
       dispatch(actions.setCursorPosition(row, next));
     }
   };
+
+  const divEl = createRef();
+  useEffect(() => {
+    if (divEl.current) {
+      divEl.current.addEventListener(
+        "wheel",
+        e => {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (e.deltaY > 0) {
+            dispatch(actions.scrollDown());
+          } else {
+            dispatch(actions.scrollUp());
+          }
+        },
+        {
+          passive: false
+        }
+      );
+    }
+  }, [divEl, dispatch]);
   return (
     <div
+      ref={divEl}
       className="front-editor"
       tabIndex="0"
       onKeyDown={callbackKeyDown}
@@ -59,12 +82,6 @@ const FrontEditor = () => {
       }}
       onBlur={() => {
         // setStartSelection(false);
-      }}
-      onWheel={e => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const delta = e.deltaY;
       }}
     >
       <div style={{ positon: "relative" }}>

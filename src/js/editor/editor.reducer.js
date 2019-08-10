@@ -5,7 +5,7 @@ let getTokens_ = undefined;
 /* */
 const initialState = {
   dom: { lines: [], tokens: [] },
-  scrollRange: { start: 10, stop: 40 },
+  scrollRange: { start: 0, stop: 20, offset: 21 },
   lines: [{ value: "", tokens: [] }],
   index: 0,
   focusedRow: undefined,
@@ -26,6 +26,36 @@ export const initializer = getTokens => {
 const reducer = (state, action) => {
   const newState = (() => {
     switch (action.type) {
+      /* SCROLL */
+      case actions.SCROLL_DOWN: {
+        const {
+          scrollRange: { start, stop, offset },
+          lines: l
+        } = state;
+        return {
+          ...state,
+          scrollRange: {
+            offset,
+            start: Math.min(start + 2, l.length - offset),
+            stop: Math.min(stop + 2, l.length - 1)
+          }
+        };
+      }
+      case actions.SCROLL_UP: {
+        const {
+          scrollRange: { start, stop, offset }
+        } = state;
+        return {
+          ...state,
+          scrollRange: {
+            offset,
+            start: Math.max(start - 2, 0),
+            stop: Math.max(stop - 2, offset - 1)
+          }
+        };
+      }
+      case actions.SET_SCROLLRANGE:
+        return { ...state, scrollRange: action.payload.scrollRange };
       /* SELECTION */
       case actions.SET_SELECTION:
         return setSelection(state, action.payload.selection);

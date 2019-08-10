@@ -8,7 +8,7 @@ import FrontEditor from "./front-editor.component";
 const Editor = ({ parse }) => {
   const editorEl = useRef();
   const state = useContext(EditorContext);
-  const { lines, focusedRow, index, dispatch, scrollRange } = state;
+  const { lines, dom, dispatch, scrollRange } = state;
 
   useEffect(() => {
     const code = lines.reduce(
@@ -31,6 +31,14 @@ const Editor = ({ parse }) => {
     );
   }, [lines, scrollRange.start, scrollRange.stop]);
 
+  useEffect(() => {
+    if (editorEl.current && dom.lines.length > 0) {
+      dispatch(
+        actions.setScrollrange(computeScrollRange(editorEl.current, dom.lines))
+      );
+    }
+  }, [editorEl, dom.lines.length, dom.lines, dispatch]);
+
   return (
     <div className="editor-container">
       <div ref={editorEl} className="editor">
@@ -38,28 +46,42 @@ const Editor = ({ parse }) => {
           <Line key={`${i}-${value}`} tokens={tokens} row={i} />
         ))}
       </div>
-      <ScrollRight parentEl={editorEl.current} />
+      <ScrollUpDown parentEl={editorEl.current} linesEl={dom.lines} />
       <FrontEditor lines={lines} />
       <Overlay lines={lines} el={editorEl} />
     </div>
   );
 };
 
-const ScrollRight = ({ parentEl }) => {
+const ScrollUpDown = ({ parentEl }) => {
   const { lines, scrollRange } = useContext(EditorContext);
   if (parentEl) {
     const offset = scrollRange.stop - scrollRange.start + 1;
-    const { height } = parentEl.getBoundingClientRect(); 
-    const dgHeight = Math.max(offset / lines.length * height, 10);
-    const dgStart= scrollRange.start / lines.length * height;
-    console.log(dgHeight);
+    const { height } = parentEl.getBoundingClientRect();
+    const dgHeight = Math.max((offset / lines.length) * height, 10);
+    const dgStart = (scrollRange.start / lines.length) * height;
+
     return (
-      <div className="scroll-right" style={{ height }}>
+      <div className="scroll-up-down" style={{ height }}>
         <span className="dragger" style={{ height: dgHeight, top: dgStart }} />
       </div>
     );
   }
   return null;
+};
+
+const computeScrollRange = (parentEl, linesEl) => {
+  if (parentEl && linesEl.length > 0) {
+    const { height: lineHeight } = linesEl[0].getBoundingClientRect();
+    const { height: containerHeight } = parentEl.getBoundingClientRect();
+    const nbRows = Math.max(
+      Math.round(containerHeight / lineHeight),
+      linesEl.length
+    );
+
+    return { start: 0, stop: nbRows - 1, offset: nbRows };
+  }
+  return { start: 0, stop: 0, offset: 0 };
 };
 
 export default Editor;

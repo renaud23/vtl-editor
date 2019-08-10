@@ -4,7 +4,7 @@ import { EditorContext } from "./editor-panel.component";
 import { lineProps } from "../editor-prop-types";
 
 const Line = ({ tokens = [], row }) => {
-  const { scrollRange, dom, lines } = useContext(EditorContext);
+  const { scrollRange, dom } = useContext(EditorContext);
   const divEl = createRef();
   const tokensEl = tokens.map(() => createRef());
   useEffect(() => {

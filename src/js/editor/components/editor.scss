@@ -1,4 +1,5 @@
 $defaultBgColor: rgb(30, 30, 30);
+$bgDarkerColor: rgb(50,50,50);
 $numberWidth: 50px;
 $rowHeight: 22px;
 @mixin cursor {
@@ -42,6 +43,7 @@ $rowHeight: 22px;
   flex-direction: row;
   background-color: $defaultBgColor;
   width: 100%;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
 
@@ -49,7 +51,7 @@ $rowHeight: 22px;
     width: $numberWidth;
 
     .row-numbers-container {
-      border-right: 1px solid lightslategray;
+      border-right: 1px solid $bgDarkerColor;
       width: 33px;
       .row {
         height: $rowHeight;
@@ -73,13 +75,14 @@ $rowHeight: 22px;
     position: relative;
     width: 100%; //calc(100% - $numberWidth);
 
-    .scroll-right {
+    .scroll-up-down {
       position: relative;
       width: 12px;
-      background-color: yellow;
+      background-color: transparent;
       position: absolute;
       right: 0;
       top: 0;
+      border-left: solid $bgDarkerColor 1px;
 
       .dragger {
         position:absolute;
@@ -126,6 +129,7 @@ $rowHeight: 22px;
     /* */
     .editor {
       z-index: 0;
+      height: 100%;
       .row {
         white-space: pre;
         height: $rowHeight;

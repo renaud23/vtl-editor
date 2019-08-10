@@ -112,5 +112,19 @@ export const deleteSelection = () => ({
 });
 
 /* SCROLL UP */
+export const SCROLL_UP = "editor/scroll-up";
+export const scrollUp = () => ({
+  type: SCROLL_UP
+});
 
 /* SCROLL DOWN */
+export const SCROLL_DOWN = "editor/scroll-down";
+export const scrollDown = () => ({
+  type: SCROLL_DOWN
+});
+
+export const SET_SCROLLRANGE = "editor/set-scrollrange";
+export const setScrollrange = scrollRange => ({
+  type: SET_SCROLLRANGE,
+  payload: { scrollRange }
+});
