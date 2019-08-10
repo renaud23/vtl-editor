@@ -25,14 +25,15 @@ const Editor = ({ parse }) => {
       i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
     []
   );
-
   useEffect(() => {
     if (editorEl.current && dom.lines.length > 0) {
       dispatch(
-        actions.setScrollrange(computeScrollRange(editorEl.current, dom.lines))
+        actions.setScrollrange(
+          computeScrollRange(editorEl.current, dom.lines, lines.length)
+        )
       );
     }
-  }, [editorEl, dom.lines.length, dom.lines, dispatch]);
+  }, [editorEl, dom.lines.length, dom.lines, lines, dispatch]);
 
   return (
     <div className="editor-container">
@@ -65,15 +66,12 @@ const ScrollUpDown = ({ parentEl }) => {
   return null;
 };
 
-const computeScrollRange = (parentEl, linesEl) => {
+const computeScrollRange = (parentEl, linesEl, nbLines) => {
+  console.log(linesEl.length);
   if (parentEl && linesEl.length > 0) {
     const { height: lineHeight } = linesEl[0].getBoundingClientRect();
     const { height: containerHeight } = parentEl.getBoundingClientRect();
-    const nbRows = Math.max(
-      Math.round(containerHeight / lineHeight),
-      linesEl.length
-    );
-
+    const nbRows = Math.min(Math.round(containerHeight / lineHeight), nbLines);
     return { start: 0, stop: nbRows - 1, offset: nbRows };
   }
   return { start: 0, stop: 0, offset: 0 };
