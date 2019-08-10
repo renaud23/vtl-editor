@@ -124,7 +124,7 @@ export const scrollDown = () => ({
 });
 
 export const SET_SCROLLRANGE = "editor/set-scrollrange";
-export const setScrollrange = scrollRange => ({
+export const setScrollRange = scrollRange => ({
   type: SET_SCROLLRANGE,
   payload: { scrollRange }
 });
