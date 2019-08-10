@@ -206,18 +206,20 @@ const WithOutSelection = ({ tokensEl, focused, index, tokens, left }) => {
       idx !== undefined && tokensEl[idx]
         ? getCursorPos(tokensEl[idx], token, index)
         : undefined;
-
-    return [
-      <span
-        key="before"
-        style={{
-          width: pos - left,
-          height: "100%",
-          display: "inline-block"
-        }}
-      />,
+    return pos !== undefined ? (
+      [
+        <span
+          key="before"
+          className="unselected"
+          style={{
+            width: pos - left
+          }}
+        />,
+        <Cursor key="cursor" />
+      ]
+    ) : tokens.length === 0 ? (
       <Cursor key="cursor" />
-    ];
+    ) : null;
   }
 
   return null;
