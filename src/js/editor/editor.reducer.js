@@ -24,165 +24,176 @@ export const initializer = getTokens => {
 };
 
 /* */
-const reducer = (state, action) => {
-  const newState = (() => {
-    switch (action.type) {
-      /* SCROLL */
-      case actions.SCROLL_DOWN: {
-        const {
-          scrollRange: { start, stop, offset },
-          lines: l
-        } = state;
-        return {
-          ...state,
-          scrollRange: {
-            offset,
-            start: Math.min(start + 2, l.length - offset),
-            stop: Math.min(stop + 2, l.length - 1)
-          }
-        };
-      }
-      case actions.SCROLL_UP: {
-        const {
-          scrollRange: { start, stop, offset }
-        } = state;
-        return {
-          ...state,
-          scrollRange: {
-            offset,
-            start: Math.max(start - 2, 0),
-            stop: Math.max(stop - 2, offset - 1)
-          }
-        };
-      }
-      case actions.SET_SCROLLRANGE:
-        return {
-          ...state,
-          scrollRange: action.payload.scrollRange
-        };
-      /* SELECTION */
-      case actions.SET_SELECTION:
-        return setSelection(state, action.payload.selection);
-      case actions.DELETE_SELECTION:
-        return deleteSelection(state);
-      case actions.INSERT_TEXT:
-        return insertText(state, action.payload.text);
-      /* ERRORS */
-      case actions.UPDATE_ERRORS:
-        return { ...state, errors: action.payload.errors };
-      /* SUGGESTIONS */
-      case actions.RESET_SUGGESTER_INDEX:
-        return {
-          ...state,
-          suggesterState: { ...state.suggesterState, index: -1 }
-        };
-      case actions.NEXT_SUGGESTION: {
-        const { index, size } = state.suggesterState;
-        return {
-          ...state,
-          suggesterState: {
-            ...state.suggesterState,
-            index: Math.min(size - 1, index + 1)
-          }
-        };
-      }
-      case actions.PREVIOUS_SUGGESTION: {
-        const { index } = state.suggesterState;
-        return {
-          ...state,
-          suggesterState: {
-            ...state.suggesterState,
-            index: Math.max(0, index - 1)
-          }
-        };
-      }
-      case actions.SET_SUGGESTER_STATE: {
-        return {
-          ...state,
-          suggesterState: { ...state.suggesterState, ...action.payload }
-        };
-      }
-      case actions.SUGGEST_TOKEN:
-        return {
-          ...replaceToken(state, action.payload.suggestion),
-          prefix: undefined
-        };
+const reducer = getTokens => {
+  getTokens_ = getTokens;
+  return (state = initialState, action) => {
+    const newState = (() => {
+      switch (action.type) {
+        /* SCROLL */
+        case actions.SCROLL_DOWN: {
+          const {
+            scrollRange: { start, stop, offset },
+            lines: l
+          } = state;
+          return {
+            ...state,
+            scrollRange: {
+              offset,
+              start: Math.min(start + 2, l.length - offset),
+              stop: Math.min(stop + 2, l.length - 1)
+            }
+          };
+        }
+        case actions.SCROLL_UP: {
+          const {
+            scrollRange: { start, stop, offset }
+          } = state;
+          return {
+            ...state,
+            scrollRange: {
+              offset,
+              start: Math.max(start - 2, 0),
+              stop: Math.max(stop - 2, offset - 1)
+            }
+          };
+        }
+        case actions.SET_SCROLLRANGE:
+          return {
+            ...state,
+            scrollRange: action.payload.scrollRange
+          };
+        /* SELECTION */
+        case actions.SET_SELECTION:
+          return setSelection(state, action.payload.selection);
+        case actions.DELETE_SELECTION:
+          return deleteSelection(state);
+        case actions.INSERT_TEXT:
+          return insertText(state, action.payload.text);
+        /* ERRORS */
+        case actions.UPDATE_ERRORS:
+          return { ...state, errors: action.payload.errors };
+        /* SUGGESTIONS */
+        case actions.RESET_SUGGESTER_INDEX:
+          return {
+            ...state,
+            suggesterState: { ...state.suggesterState, index: -1 }
+          };
+        case actions.NEXT_SUGGESTION: {
+          const { index, size } = state.suggesterState;
+          return {
+            ...state,
+            suggesterState: {
+              ...state.suggesterState,
+              index: Math.min(size - 1, index + 1)
+            }
+          };
+        }
+        case actions.PREVIOUS_SUGGESTION: {
+          const { index } = state.suggesterState;
+          return {
+            ...state,
+            suggesterState: {
+              ...state.suggesterState,
+              index: Math.max(0, index - 1)
+            }
+          };
+        }
+        case actions.SET_SUGGESTER_STATE: {
+          return {
+            ...state,
+            suggesterState: { ...state.suggesterState, ...action.payload }
+          };
+        }
+        case actions.SUGGEST_TOKEN:
+          return {
+            ...replaceToken(state, action.payload.suggestion),
+            prefix: undefined
+          };
 
-      /* */
-      case actions.EXIT_EDITOR:
-        return {
-          ...state,
-          focusedRow: undefined,
-          prefix: undefined,
-          cursorRect: undefined,
-          index: undefined
-        };
+        /* */
+        case actions.EXIT_EDITOR:
+          return {
+            ...state,
+            focusedRow: undefined,
+            prefix: undefined,
+            cursorRect: undefined,
+            index: undefined
+          };
 
-      case actions.RESET_PREFIX:
-        return { ...state, prefix: undefined };
-      case actions.CHECK_PREFIX:
-        return { ...state, prefix: checkPrefix(state) };
+        case actions.RESET_PREFIX:
+          return { ...state, prefix: undefined };
+        case actions.CHECK_PREFIX:
+          return { ...state, prefix: checkPrefix(state) };
 
-      /* CURSOR POSITION */
-      case actions.SET_CURSOR_POSITION:
-        return {
-          ...state,
-          prefix: undefined,
-          index: action.payload.index,
-          focusedRow: action.payload.numberRow
-        };
-      case actions.SET_CURSOR_RECT:
-        return {
-          ...state,
-          cursorRect: action.payload.rect
-        };
-      /* */
-      case "change-editor-content":
-        return { ...state, lines: action.lines.map(row => getNewRow(row)) };
-      case KEY.ARROW_LEFT:
-        return reduceKeyLeft(state);
-      case KEY.ARROW_RIGHT:
-        return reduceKeyRight(state);
-      case KEY.ARROW_UP:
-        return {
-          ...state,
-          selection: undefined,
-          focusedRow: Math.max(0, state.focusedRow - 1)
-        };
-      case KEY.ARROW_DOWN:
-        return {
-          ...state,
-          selection: undefined,
-          focusedRow: Math.min(state.lines.length - 1, state.focusedRow + 1)
-        };
-      case KEY.BACK_SPACE:
-        return reduceKeyBackspace(state);
-      case KEY.DELETE:
-        return reduceKeyDelete(state);
-      case KEY.ENTER:
-        return reduceKeyEnter(state);
-      case KEY.HOME:
-        return { ...state, index: 0, selection: undefined, prefix: undefined };
-      case KEY.END:
-        return {
-          ...state,
-          index: getRowLength(state),
-          selection: undefined,
-          prefix: undefined
-        };
-      case actions.CHECK_INDEX:
-        return { ...state, index: Math.min(state.index, getRowLength(state)) };
-      case KEY.TAB:
-        return appendCharAtCursor(state)(KEY._TABULATION);
-      case actions.INSERT_CHARACTER:
-        return appendCharAtCursor(state)(action.payload.char || "");
-      default:
-        console.warn(`Unbind event ${action.type}`);
-        return state;
-    }
-  })();
-  console.debug("%cDebug", "color: purple;", { action, state, newState });
-  return newState;
+        /* CURSOR POSITION */
+        case actions.SET_CURSOR_POSITION:
+          return {
+            ...state,
+            prefix: undefined,
+            index: action.payload.index,
+            focusedRow: action.payload.numberRow
+          };
+        case actions.SET_CURSOR_RECT:
+          return {
+            ...state,
+            cursorRect: action.payload.rect
+          };
+        /* */
+        case "change-editor-content":
+          return { ...state, lines: action.lines.map(row => getNewRow(row)) };
+        case KEY.ARROW_LEFT:
+          return reduceKeyLeft(state);
+        case KEY.ARROW_RIGHT:
+          return reduceKeyRight(state);
+        case KEY.ARROW_UP:
+          return {
+            ...state,
+            selection: undefined,
+            focusedRow: Math.max(0, state.focusedRow - 1)
+          };
+        case KEY.ARROW_DOWN:
+          return {
+            ...state,
+            selection: undefined,
+            focusedRow: Math.min(state.lines.length - 1, state.focusedRow + 1)
+          };
+        case KEY.BACK_SPACE:
+          return reduceKeyBackspace(state);
+        case KEY.DELETE:
+          return reduceKeyDelete(state);
+        case KEY.ENTER:
+          return reduceKeyEnter(state);
+        case KEY.HOME:
+          return {
+            ...state,
+            index: 0,
+            selection: undefined,
+            prefix: undefined
+          };
+        case KEY.END:
+          return {
+            ...state,
+            index: getRowLength(state),
+            selection: undefined,
+            prefix: undefined
+          };
+        case actions.CHECK_INDEX:
+          return {
+            ...state,
+            index: Math.min(state.index, getRowLength(state))
+          };
+        case KEY.TAB:
+          return appendCharAtCursor(state)(KEY._TABULATION);
+        case actions.INSERT_CHARACTER:
+          return appendCharAtCursor(state)(action.payload.char || "");
+        default:
+          console.warn(`Unbind event ${action.type}`);
+          return state;
+      }
+    })();
+    console.debug("%cDebug", "color: purple;", { action, state, newState });
+    return newState;
+  };
 };
 
 /* SUGGEST_TOKEN */

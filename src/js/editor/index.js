@@ -1,4 +1,4 @@
-import { default as Editor } from './components/editor-panel.component';
+import { default as Editor } from "./components/editor.component";
 
-export { composeShortcuts } from './shortcut-patterns';
+export { composeShortcuts } from "./shortcut-patterns";
 export default Editor;
