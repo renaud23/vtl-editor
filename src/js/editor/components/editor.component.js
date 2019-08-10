@@ -42,6 +42,7 @@ const Editor = ({ parse }) => {
           <Line key={`${i}-${value}`} tokens={tokens} row={i} />
         ))}
       </div>
+
       <ScrollUpDown parentEl={editorEl.current} linesEl={dom.lines} />
       <FrontEditor lines={lines} />
       <Overlay lines={lines} el={editorEl} />
@@ -67,7 +68,6 @@ const ScrollUpDown = ({ parentEl }) => {
 };
 
 const computeScrollRange = (parentEl, linesEl, nbLines) => {
-  console.log(linesEl.length);
   if (parentEl && linesEl.length > 0) {
     const { height: lineHeight } = linesEl[0].getBoundingClientRect();
     const { height: containerHeight } = parentEl.getBoundingClientRect();

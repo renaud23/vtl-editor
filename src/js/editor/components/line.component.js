@@ -31,4 +31,4 @@ const Line = ({ tokens = [], row }) => {
 
 Line.propTypes = lineProps;
 
-export default Line;
+export default React.forwardRef((props, ref) => <Line {...props} ref={ref} />);
