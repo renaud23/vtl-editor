@@ -20,16 +20,11 @@ const Editor = ({ parse }) => {
     dispatch(actions.updateErrors(errors));
   }, [lines, parse, dispatch]);
 
-  const [visiblesLines, setVisiblesLines] = useState([]);
-  useEffect(() => {
-    setVisiblesLines(
-      lines.reduce(
-        (a, line, i) =>
-          i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
-        []
-      )
-    );
-  }, [lines, scrollRange.start, scrollRange.stop]);
+  const visiblesLines = lines.reduce(
+    (a, line, i) =>
+      i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
+    []
+  );
 
   useEffect(() => {
     if (editorEl.current && dom.lines.length > 0) {

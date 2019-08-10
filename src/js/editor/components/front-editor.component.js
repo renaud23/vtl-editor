@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect, createRef } from "react";
 import { EditorContext } from "./editor-panel.component";
 import createKeydownCallback from "./../editor-keydown-callback";
 import * as actions from "../editor.actions";
-import { directiveLiteral } from "@babel/types";
 
 const FrontEditor = () => {
   const state = useContext(EditorContext);
@@ -17,16 +16,12 @@ const FrontEditor = () => {
     index,
     focusedRow
   } = state;
-  const [visiblesLines, setVisiblesLines] = useState([]);
-  useEffect(() => {
-    setVisiblesLines(
-      lines.reduce(
-        (a, line, i) =>
-          i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
-        []
-      )
-    );
-  }, [lines, scrollRange.start, scrollRange.stop]);
+
+  const visiblesLines = lines.reduce(
+    (a, line, i) =>
+      i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
+    []
+  );
 
   useEffect(() => {
     if (typeof handleChange === "function") {

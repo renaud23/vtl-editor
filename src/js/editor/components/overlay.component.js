@@ -5,16 +5,11 @@ import { EditorContext } from "./editor-panel.component";
 
 const Overlay = () => {
   const { lines, dom, scrollRange } = useContext(EditorContext);
-  const [visiblesLines, setVisiblesLines] = useState([]);
-  useEffect(() => {
-    setVisiblesLines(
-      lines.reduce(
-        (a, line, i) =>
-          i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
-        []
-      )
-    );
-  }, [lines, scrollRange.start, scrollRange.stop]);
+  const visiblesLines = lines.reduce(
+    (a, line, i) =>
+      i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
+    []
+  );
   return (
     <div className="overlay">
       <div style={{ positon: "relative" }}>
@@ -23,6 +18,7 @@ const Overlay = () => {
           return (
             <LineEl key={`${row}-${line.value}`} el={dom.lines[i]}>
               <Line
+                line={line}
                 tokens={line.tokens}
                 tokensEl={dom.tokens[i]}
                 row={row}
@@ -128,14 +124,14 @@ const Full = ({ tokensEl, tokens }) => {
       { width: 0 }
     );
 
-    return (
+    return r.width !== undefined ? (
       <span
         className="selected"
         style={{
           width: r.width
         }}
       />
-    );
+    ) : null;
   }
   return (
     <span

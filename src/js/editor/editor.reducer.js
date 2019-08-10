@@ -7,6 +7,7 @@ const initialState = {
   dom: { lines: [], tokens: [] },
   scrollRange: { start: 0, stop: 20, offset: 21 },
   lines: [{ value: "", tokens: [] }],
+  visiblesLines: [],
   index: 0,
   focusedRow: undefined,
   prefix: undefined,
@@ -55,7 +56,10 @@ const reducer = (state, action) => {
         };
       }
       case actions.SET_SCROLLRANGE:
-        return { ...state, scrollRange: action.payload.scrollRange };
+        return {
+          ...state,
+          scrollRange: action.payload.scrollRange
+        };
       /* SELECTION */
       case actions.SET_SELECTION:
         return setSelection(state, action.payload.selection);
