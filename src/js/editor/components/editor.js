@@ -5,6 +5,7 @@ import createTokenizer from "./../create-full-tokenizer";
 
 const ROW_HEIGHT = 22;
 let DOM_ELEMENTS = { lines: [], tokens: [] };
+let CURSOR_POSITION = { top: undefined, left: undefined };
 
 /* */
 const createEditor = ({ content, getTokens }) => elParent => {
@@ -32,12 +33,26 @@ const createEditor = ({ content, getTokens }) => elParent => {
 };
 
 // render
-
 const eventsLayerOverlay = store => layer => {
+  const { focusedRow, index, lines, scrollRange } = store.getState();
   const range = document.createRange();
   range.selectNodeContents(layer);
   range.deleteContents();
-  console.log("render");
+
+  if (focusedRow !== undefined && index !== undefined) {
+    // const { token, idx } = getTokenFromCursor(index, lines[focusedRow].tokens);
+
+    // const curX = getCursorPos(
+    //   DOM_ELEMENTS.tokens[focusedRow - scrollRange.start][idx],
+    //   token,
+    //   index
+    // );
+    const cursorEl = document.createElement("div");
+    cursorEl.className = "cursor";
+    cursorEl.style.top = `${CURSOR_POSITION.top}px`;
+    cursorEl.style.left = `${CURSOR_POSITION.left}px`;
+    layer.appendChild(cursorEl);
+  }
 };
 
 const renderTokenLayer = store => tokensLayerEL => {
@@ -83,7 +98,7 @@ const createContainer = lines => {
 /* TOKEN LAYER */
 const createTokensLayer = lines => {
   const dom = lines
-    .map(line => createLineEl(line))
+    .map((line, i) => createLineEl(line, i))
     .reduce(
       ({ lines, tokens }, { tokensEl, lineEl }) => ({
         lines: [...lines, lineEl],
@@ -96,10 +111,12 @@ const createTokensLayer = lines => {
     );
   return dom;
 };
-const createLineEl = line => {
+const createLineEl = (line, i) => {
   const tokensEl = line.tokens.map(token => createTokenEl(token));
   const lineEl = document.createElement("div");
   lineEl.className = "row";
+  lineEl.style.backgroundColor =
+    i % 2 === 0 ? "rgba(100,100,0,0.5)" : "rgba(100,0,0,0.5)";
   tokensEl.forEach(tokenEl => lineEl.appendChild(tokenEl));
   return { tokensEl, lineEl };
 };
@@ -130,24 +147,30 @@ const prepareEventsLayerEl = store => (layerEl, rowHeight) => {
     // calcul row
     const { clientX, clientY } = e;
     const rect = layerEl.getBoundingClientRect();
-    const screenRow = Math.round((clientY - rect.top) / rowHeight);
+    const screenRow = Math.trunc((clientY - rect.top) / rowHeight);
+
     const row =
       screenRow < lines.length + scrollRange.start
         ? screenRow + scrollRange.start
         : undefined;
     // calcul index
     let index = undefined;
-    if (row) {
+    if (row !== undefined && screenRow < scrollRange.offset) {
       const dom = DOM_ELEMENTS;
       const line = lines[row];
       const { el, token } = getToken(dom, screenRow, clientX, clientY)(line);
 
-      index = el
-        ? getCursorIndex(el, token, clientX)
-        : dom.tokens[screenRow].length > 0
-        ? line.value.length
-        : 0;
+      if (el) {
+        const { next, cursorLeft } = getCursorIndex(el, token, clientX);
+        index = next;
+        CURSOR_POSITION.left = cursorLeft;
+      } else {
+        const rect = getLineRect(dom.tokens[screenRow]);
+        CURSOR_POSITION.left = rect.width;
+        index = line.value.length;
+      }
     }
+    CURSOR_POSITION.top = screenRow * rowHeight;
     store.dispatch(actions.setCursorPosition(row, index));
   });
   layerEl.addEventListener("mousedown", e => {
@@ -156,9 +179,7 @@ const prepareEventsLayerEl = store => (layerEl, rowHeight) => {
   layerEl.addEventListener("mousemove", e => {
     e.stopImmediatePropagation();
   });
-  layerEl.addEventListener("keydown", e => {
-    console.log("key");
-  });
+  layerEl.addEventListener("keydown", e => {});
 
   return {};
 };
@@ -178,8 +199,18 @@ const getCursorIndex = (el, { start, value }, clientX) => {
   const chasse = width / value.length;
   const curX = clientX - left;
   const next = start + Math.round(curX / chasse);
-  return next;
+  const cursorLeft = Math.round(chasse * next);
+  return { next, cursorLeft };
 };
+
+const getLineRect = tokensEl =>
+  tokensEl.reduce((a, el, i) => {
+    const r = el.getBoundingClientRect();
+    return i === 0
+      ? { left: r.left, top: r.top, width: r.width }
+      : { ...a, width: Math.round(a.width + r.width) };
+  }, {});
+
 /* UTILS */
 
 export default createEditor;

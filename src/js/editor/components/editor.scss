@@ -99,9 +99,13 @@ $rowHeight: 22px;
         outline: none;
       }
       background-color: transparent;
-      .row {
-        cursor: text;
-      }
+       
+        
+        .cursor {
+          @include cursor();
+          position: absolute;
+        }
+       
     }
     /* */
     .overlay {
