@@ -4,7 +4,6 @@ import * as actions from "./editor.actions";
 let getTokens_ = undefined;
 /* */
 const initialState = {
-  dom: { lines: [], tokens: [] },
   scrollRange: { start: 0, stop: 20, offset: 21 },
   lines: [{ value: "", tokens: [] }],
   visiblesLines: [],

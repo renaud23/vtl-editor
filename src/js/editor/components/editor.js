@@ -3,32 +3,44 @@ import * as actions from "./../editor.actions";
 import reducer from "./../editor.reducer";
 import createTokenizer from "./../create-full-tokenizer";
 
+const ROW_HEIGHT = 22;
+let DOM_ELEMENTS = { lines: [], tokens: [] };
+
 /* */
 const createEditor = ({ content, getTokens }) => elParent => {
   if (typeof getTokens === "function" && Array.isArray(content)) {
-    const { el, editorEl, eventsLayerEl } = createContainer();
+    const { el, tokensLayerEL, eventsLayerEl } = createContainer();
     elParent.appendChild(el);
     const getTokensFull = createTokenizer(getTokens);
     // step init
     const store = createStore(reducer(getTokensFull));
     // subscribe
     store.subscribe(() => {
-      //
-      //   console.log(store.getState());
+      renderTokenLayer(store)(tokensLayerEL);
+      eventsLayerOverlay(store)(eventsLayerEl);
     });
 
-    init(store)(content, editorEl, eventsLayerEl);
+    init(store)(content, tokensLayerEL, eventsLayerEl);
 
-    // render step
-    render(store)(editorEl, eventsLayerEl);
+    // render first
+    renderTokenLayer(store)(tokensLayerEL, eventsLayerEl);
+    prepareEventsLayerEl(store)(eventsLayerEl, ROW_HEIGHT);
   }
   return () => {
     // TODO clean méthode
   };
 };
 
-// render brutal
-const render = store => (editorEl, eventsLayerEl) => {
+// render
+
+const eventsLayerOverlay = store => layer => {
+  const range = document.createRange();
+  range.selectNodeContents(layer);
+  range.deleteContents();
+  console.log("render");
+};
+
+const renderTokenLayer = store => tokensLayerEL => {
   const { lines, scrollRange } = store.getState();
   const visiblesLines = lines.reduce(
     (a, line, i) =>
@@ -36,18 +48,17 @@ const render = store => (editorEl, eventsLayerEl) => {
     []
   );
 
-  editorEl.innerHtml = null;
-  eventsLayerEl.innerHtml = null;
+  const range = document.createRange();
+  range.selectNodeContents(tokensLayerEL);
+  range.deleteContents();
+
   const dom = createTokensLayer(visiblesLines);
+  DOM_ELEMENTS = dom;
   dom.lines.forEach(lineEl => {
-    editorEl.appendChild(lineEl);
+    tokensLayerEL.appendChild(lineEl);
   });
-
-  const eventsLayerRows = createEventsLayer(dom)(store);
-  eventsLayerRows.forEach(lineEl => eventsLayerEl.appendChild(lineEl));
+  return dom;
 };
-
-export default createEditor;
 
 const init = store => content => {
   store.dispatch({
@@ -59,13 +70,14 @@ const init = store => content => {
 const createContainer = lines => {
   const el = document.createElement("div");
   el.className = "editor-container";
-  const editorEl = document.createElement("div");
-  editorEl.className = "tokens-layer";
-  el.appendChild(editorEl);
+  const tokensLayerEL = document.createElement("div");
+  tokensLayerEL.className = "tokens-layer";
+  el.appendChild(tokensLayerEL);
   const eventsLayerEl = document.createElement("div");
   eventsLayerEl.className = "events-layer";
+  eventsLayerEl.setAttribute("tabindex", "0");
   el.appendChild(eventsLayerEl);
-  return { el, editorEl, eventsLayerEl };
+  return { el, tokensLayerEL, eventsLayerEl };
 };
 
 /* TOKEN LAYER */
@@ -111,21 +123,63 @@ const computeScrollRange = (parentEl, linesEl, nbLines) => {
 };
 
 /* EVENTS LAYER */
-const createEventsLayer = dom => store => {
-  const { dispatch, scrollRange } = store.getState();
-  const linesEl = dom.lines.map((el, i) => {
-    const rect = el.getBoundingClientRect();
-    const rel = document.createElement("div");
-    rel.className = "row";
-    rel.style.width = `${rect.width}px`;
-    rel.style.height = `${rect.height}px`;
-    rel.style.left = `${rect.left}px`;
-    rel.addEventListener("click", e => {
-      e.stopImmediatePropagation();
-      console.log("row", i + scrollRange.start);
-    });
-    return rel;
+const prepareEventsLayerEl = store => (layerEl, rowHeight) => {
+  const { scrollRange, lines } = store.getState();
+  layerEl.addEventListener("mouseup", e => {
+    e.stopImmediatePropagation();
+    // calcul row
+    const { clientX, clientY } = e;
+    const rect = layerEl.getBoundingClientRect();
+    const screenRow = Math.round((clientY - rect.top) / rowHeight);
+    const row =
+      screenRow < lines.length + scrollRange.start
+        ? screenRow + scrollRange.start
+        : undefined;
+    // calcul index
+    let index = undefined;
+    if (row) {
+      const dom = DOM_ELEMENTS;
+      const line = lines[row];
+      const { el, token } = getToken(dom, screenRow, clientX, clientY)(line);
+
+      index = el
+        ? getCursorIndex(el, token, clientX)
+        : dom.tokens[screenRow].length > 0
+        ? line.value.length
+        : 0;
+    }
+    store.dispatch(actions.setCursorPosition(row, index));
+  });
+  layerEl.addEventListener("mousedown", e => {
+    e.stopImmediatePropagation();
+  });
+  layerEl.addEventListener("mousemove", e => {
+    e.stopImmediatePropagation();
+  });
+  layerEl.addEventListener("keydown", e => {
+    console.log("key");
   });
 
-  return linesEl;
+  return {};
 };
+
+const getToken = (dom, screenRow, clientX, clientY) => line => {
+  const { el, token } = dom.tokens[screenRow].reduce((a, el, i) => {
+    const { left, width } = el.getBoundingClientRect();
+    return el && clientX >= left && clientX <= left + width
+      ? { el, token: line.tokens[i] }
+      : a;
+  }, {});
+  return { el, token };
+};
+
+const getCursorIndex = (el, { start, value }, clientX) => {
+  const { width, left } = el.getBoundingClientRect();
+  const chasse = width / value.length;
+  const curX = clientX - left;
+  const next = start + Math.round(curX / chasse);
+  return next;
+};
+/* UTILS */
+
+export default createEditor;
