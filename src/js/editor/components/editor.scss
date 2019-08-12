@@ -103,6 +103,11 @@ $rowHeight: 22px;
         @include cursor();
         position: absolute;
       }
+      .bloc-selection {
+        position: absolute;
+        height: $rowHeight;
+        background-color: rgba(100, 100, 0, 0.5);
+      }
       // .row {
       //   cursor: text;
       // }
@@ -138,6 +143,7 @@ $rowHeight: 22px;
         white-space: pre;
         height: $rowHeight;
         font-size: 15px;
+        tab-size: 1em;
         font-family: Consolas, Monaco, "Courier New", Courier, monospace;
         background-color: $defaultBgColor;
         color: antiquewhite;

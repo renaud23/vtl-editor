@@ -22,6 +22,7 @@ const Overlay = () => {
     left: undefined
   });
   const [startSelection, setStartSelection] = useState(false);
+  const [selectionBlocs, setSelectionBlocs] = useState([]);
   const callbackCursorPos = e => {
     const { next, row } = getXPositions(e, divEl, dom)(
       scrollRange,
@@ -65,7 +66,16 @@ const Overlay = () => {
     scrollRange.offset
   ]);
   /* selection */
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (selection && selection.stop) {
+      const blocs = getSelectionsBlocs(dom, rowHeight)(
+        selection,
+        lines,
+        scrollRange
+      );
+      setSelectionBlocs(blocs);
+    }
+  }, [selection, dom, rowHeight, scrollRange, lines, index]);
 
   const callbackKeyDown = createKeydownCallback(
     dispatch,
@@ -92,6 +102,7 @@ const Overlay = () => {
           const { next, row } = callbackCursorPos(e);
           if (selection.start.row === row && selection.start.index === next) {
             dispatch(actions.setSelection(undefined));
+            setSelectionBlocs([]);
           }
         }}
         onMouseMove={e => {
@@ -115,6 +126,13 @@ const Overlay = () => {
             style={{ top: cursorPos.top, left: cursorPos.left }}
           />
         ) : null}
+        {selectionBlocs.map(({ top, left, width }, i) => (
+          <span
+            className="bloc-selection"
+            key={i}
+            style={{ top, left, width }}
+          />
+        ))}
       </div>
     );
   }
@@ -178,7 +196,7 @@ const getLastXPositions = line => {
 };
 
 /* */
-const getCursorXScreenPos = (el, rowHeight) => ({ value, start }, index) => {
+const getCursorXScreenPos = el => ({ value, start }, index) => {
   const { width } = el.getBoundingClientRect();
   const chasse = width / value.length; // char width in pixel
   return chasse * (index - start) + el.offsetLeft;
@@ -192,12 +210,90 @@ const getLastCurxPosition = tokensEl =>
 /*
  * SELECTION
  */
-const getSelection = () => {
-  return null;
+
+const getSelectionsBlocs = (dom, rowHeight) => (
+  selection,
+  lines,
+
+  scrollRange
+) =>
+  selection && selection.stop
+    ? selection.start.row === selection.stop.row
+      ? singleRowSelection(dom, rowHeight)(selection, lines, scrollRange)
+      : MultiRowSelection(dom, rowHeight)(selection, lines, scrollRange)
+    : [];
+
+const singleRowSelection = (dom, rowHeight) => (
+  selection,
+  lines,
+  scrollRange
+) => {
+  return [];
 };
 
-const getSelectionScreen = () => {
-  return null;
+const MultiRowSelection = (dom, rowHeight) => (
+  { start, stop }, //selection
+  lines,
+  scrollRange
+) => {
+  const blocs = new Array(stop.row - start.row + 1)
+    .fill({})
+    .map((b, i) =>
+      getFullRow(dom.tokens[start.row + i], start.row + i, rowHeight)(
+        lines[start.row],
+        start.index
+      )
+    );
+  const anchorScreenRow = start.row - scrollRange.start;
+  blocs[0] = getAnchorBloc(dom.tokens[anchorScreenRow], start.row, rowHeight)(
+    lines[start.row],
+    start.index
+  );
+
+  if (stop.row >= 0 && stop.index >= 0) {
+    // const extentScreenRow = stop.row - scrollRange.start;
+    // blocs[blocs.length - 1] = getExtentBloc(
+    //   dom.tokens[extentScreenRow],
+    //   stop.row,
+    //   rowHeight
+    // )(lines[start.row], stop.index);
+  }
+
+  return blocs;
+};
+
+const getAnchorBloc = (tokensEl, rowScreen, rowHeight) => (line, index) => {
+  const { token, el } = getTokenFromIndex(tokensEl)(line, index);
+  if (token) {
+    const left = getCursorXScreenPos(el)(token, index);
+    return {
+      left,
+      top: rowScreen * rowHeight,
+      width: getLastCurxPosition(tokensEl) - left
+    };
+  }
+  return {};
+};
+
+const getExtentBloc = (tokensEl, rowScreen, rowHeight) => (line, index) => {
+  const { token, el } = getTokenFromIndex(tokensEl)(line, index);
+  if (token) {
+    const width = getCursorXScreenPos(el)(token, index);
+    return {
+      left: 0,
+      top: rowScreen * rowHeight,
+      width
+    };
+  }
+  return {};
+};
+
+const getFullRow = (tokensEl, rowScreen, rowHeight) => (line, index) => {
+  return {
+    left: 0,
+    top: rowScreen * rowHeight,
+    width: getLastCurxPosition(tokensEl)
+  };
 };
 
 export default Overlay;
