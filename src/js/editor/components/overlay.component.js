@@ -3,42 +3,40 @@ import { LineEl } from "./front-editor.component";
 import Cursor from "./cursor.component";
 import * as actions from "./../editor.actions";
 import { EditorContext } from "./editor-panel.component";
-import { isNullOrUndefined } from "util"; 
+import { isNullOrUndefined } from "util";
 
 const Overlay = () => {
-  const { dom, lines, rowHeight, scrollRange,dispatch } = useContext(EditorContext);
+  const { dom, lines, rowHeight, scrollRange, dispatch } = useContext(
+    EditorContext
+  );
   const divEl = useRef(null);
   const [cursorPos, setCursorPos] = useState({
     top: undefined,
     left: undefined
   });
+
+  const callbackCursorPos = e => {
+    const { next, row, rowY, rowX } = getXPositions(e, divEl, dom)(
+      scrollRange,
+      rowHeight,
+      lines
+    );
+    setCursorPos({ top: rowY, left: rowX });
+    dispatch(actions.setCursorPosition(row, next));
+  };
+
   if (dom.lines.length > 0) {
     return (
       <div
         ref={divEl}
         className="front-editor"
         onMouseDown={e => {
-          const { clientX, clientY } = e;
-          const { top, left } = divEl.current.getBoundingClientRect();
-          const posX = clientX - left;
-          const posY = clientY - top;
-
-          const row = Math.trunc(posY / rowHeight) + scrollRange.start;
-          const rowY = Math.trunc(posY / rowHeight) * rowHeight;
-
-          if (row < scrollRange.start + scrollRange.offset) {
-            // rien à faire si hors de l'offset
-            const { token, el } = getTokenFromEl(clientX, dom.tokens[row])(
-              lines[row]
-            );
-            if (token && el) {
-              const { next, rowX } = getCursorXPositions(clientX, el)(token);
-              setCursorPos({ top: rowY, left: rowX });
-              dispatch(actions.setCursorPosition(next, row));
-            } else {
-              // fin de ligne
-            }
-          }
+          e.stopPropagation();
+          callbackCursorPos(e);
+        }}
+        onMouseUp={e => {
+          e.stopPropagation();
+          callbackCursorPos(e);
         }}
       >
         {cursorPos.top !== undefined && cursorPos.left !== undefined ? (
@@ -53,7 +51,25 @@ const Overlay = () => {
   return null;
 };
 
-const getXPositions = e => {
+const getXPositions = (e, parentEl, dom) => (scrollRange, rowHeight, lines) => {
+  const { clientX, clientY } = e;
+  const { top } = parentEl.current.getBoundingClientRect();
+  const posY = clientY - top;
+
+  const row = Math.trunc(posY / rowHeight) + scrollRange.start;
+  const rowY = Math.trunc(posY / rowHeight) * rowHeight;
+
+  if (row < scrollRange.start + scrollRange.offset) {
+    const { token, el } = getTokenFromEl(clientX, dom.tokens[row])(lines[row]);
+
+    return token && el
+      ? { ...getCursorXPositions(clientX, el)(token), row, rowY }
+      : {
+          ...getLastXPositions(clientX, dom.tokens[row])(lines[row]),
+          row,
+          rowY
+        };
+  }
   return {};
 };
 
@@ -76,6 +92,15 @@ const getCursorXPositions = (clientX, el) => ({ start, value }) => {
   const next = start + tokX; // nb char in row before cursor
   const rowX = tokX * chasse + el.offsetLeft; // cur pos in row, at char start position
   return { next, rowX };
+};
+
+const getLastXPositions = (clientX, tokensEl) => line => {
+  const width = tokensEl.reduce(
+    (w, t) => w + t.getBoundingClientRect().width,
+    0
+  );
+
+  return { next: line.value.length, rowX: width };
 };
 
 export default Overlay;
