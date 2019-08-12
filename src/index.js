@@ -54,7 +54,14 @@ const dictionnary = {
 
 const content = [
   'tata := "toto";',
-  'if toto = "toto"'
+  'if toto = "toto"',
+  ' var_1 = "One row more;"',
+  ' var_2 = "2 One row more;"',
+  ' var_3 = " 3One row more;"',
+  ' var_4 = " 4One row more;"',
+  "",
+  "a;"
+
   // "\tthen true",
   // "\t else false;",
   // "if titi >=30 then 50 else 60;",

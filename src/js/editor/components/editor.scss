@@ -1,5 +1,5 @@
 $defaultBgColor: rgb(30, 30, 30);
-$bgDarkerColor: rgb(50,50,50);
+$bgDarkerColor: rgb(50, 50, 50);
 $numberWidth: 50px;
 $rowHeight: 22px;
 @mixin cursor {
@@ -85,7 +85,7 @@ $rowHeight: 22px;
       border-left: solid $bgDarkerColor 1px;
 
       .dragger {
-        position:absolute;
+        position: absolute;
         display: inline-block;
         background-color: red;
         width: 12px;
@@ -99,9 +99,13 @@ $rowHeight: 22px;
         outline: none;
       }
       background-color: transparent;
-      .row {
-        cursor: text;
+      .cursor {
+        @include cursor();
+        position: absolute;
       }
+      // .row {
+      //   cursor: text;
+      // }
     }
     /* */
     .overlay {
