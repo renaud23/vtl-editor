@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useState, useRef } from "react";
 import createKeydownCallback from "./../editor-keydown-callback";
 import * as actions from "./../editor.actions";
 import { EditorContext } from "./editor-panel.component";
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 const Overlay = () => {
   const state = useContext(EditorContext);
   const {
     dom,
+    selection,
     lines,
     index,
     focusedRow,
@@ -29,7 +29,10 @@ const Overlay = () => {
       lines
     );
     dispatch(actions.setCursorPosition(row, next));
+    return { next, row };
   };
+
+  /* cursor */
   useEffect(() => {
     if (focusedRow >= 0 && index >= 0) {
       if (focusedRow > scrollRange.start + scrollRange.offset) {
@@ -52,7 +55,17 @@ const Overlay = () => {
         setCursorPos({ top, left });
       }
     }
-  }, [index, focusedRow, lines, dom.tokens, rowHeight, scrollRange.start]);
+  }, [
+    index,
+    focusedRow,
+    lines,
+    dom.tokens,
+    rowHeight,
+    scrollRange.start,
+    scrollRange.offset
+  ]);
+  /* selection */
+  useEffect(() => {}, []);
 
   const callbackKeyDown = createKeydownCallback(
     dispatch,
@@ -70,17 +83,29 @@ const Overlay = () => {
         onMouseDown={e => {
           setStartSelection(true);
           e.stopPropagation();
-          callbackCursorPos(e);
+          const { next, row } = callbackCursorPos(e);
+          dispatch(actions.setSelection({ start: { row, index: next } }));
         }}
         onMouseUp={e => {
           setStartSelection(false);
           e.stopPropagation();
-          callbackCursorPos(e);
+          const { next, row } = callbackCursorPos(e);
+          if (selection.start.row === row && selection.start.index === next) {
+            dispatch(actions.setSelection(undefined));
+          }
         }}
         onMouseMove={e => {
           if (startSelection) {
             e.stopPropagation();
-            callbackCursorPos(e);
+            const { next, row } = callbackCursorPos(e);
+            if (selection.start.row !== row || selection.start.index !== next) {
+              dispatch(
+                actions.setSelection({
+                  ...selection,
+                  stop: { row, index: next }
+                })
+              );
+            }
           }
         }}
       >
@@ -96,6 +121,9 @@ const Overlay = () => {
   return null;
 };
 
+/*
+ * CURSOR
+ */
 const getXPositions = (e, parentEl, dom) => (scrollRange, rowHeight, lines) => {
   const { clientX, clientY } = e;
   const { top } = parentEl.current.getBoundingClientRect();
@@ -160,5 +188,16 @@ const getLastCurxPosition = tokensEl =>
   tokensEl
     ? tokensEl.reduce((a, el) => a + el.getBoundingClientRect().width, 0)
     : 0;
+
+/*
+ * SELECTION
+ */
+const getSelection = () => {
+  return null;
+};
+
+const getSelectionScreen = () => {
+  return null;
+};
 
 export default Overlay;
