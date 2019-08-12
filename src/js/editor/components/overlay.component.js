@@ -32,6 +32,12 @@ const Overlay = () => {
   };
   useEffect(() => {
     if (focusedRow >= 0 && index >= 0) {
+      if (focusedRow > scrollRange.start + scrollRange.offset) {
+        console.log("TODO avancer d'un rang le scrollRange");
+        return;
+      }
+
+      // focusedRow is in offset range
       const { token, el } = getTokenFromIndex(dom.tokens[focusedRow])(
         lines[focusedRow],
         index
@@ -120,11 +126,15 @@ const getTokenFromEl = (clientX, tokensEl) => line =>
   );
 
 const getTokenFromIndex = tokensEl => (line, index) =>
-  line.tokens.reduce(
-    (a, t, i) =>
-      index >= t.start && index <= t.stop ? { token: t, el: tokensEl[i] } : a,
-    { token: undefined, el: undefined }
-  );
+  tokensEl
+    ? line.tokens.reduce(
+        (a, t, i) =>
+          index >= t.start && index <= t.stop
+            ? { token: t, el: tokensEl[i] }
+            : a,
+        {}
+      )
+    : {};
 
 const getCursorXPositions = (clientX, el) => ({ start, value }) => {
   const { width, left } = el.getBoundingClientRect();
@@ -147,6 +157,8 @@ const getCursorXScreenPos = (el, rowHeight) => ({ value, start }, index) => {
 };
 
 const getLastCurxPosition = tokensEl =>
-  tokensEl.reduce((a, el) => a + el.getBoundingClientRect().width, 0);
+  tokensEl
+    ? tokensEl.reduce((a, el) => a + el.getBoundingClientRect().width, 0)
+    : 0;
 
 export default Overlay;
