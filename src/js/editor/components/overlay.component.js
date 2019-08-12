@@ -1,42 +1,81 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { LineEl } from "./front-editor.component";
-import Cursor from "./cursor.component";
+import createKeydownCallback from "./../editor-keydown-callback";
 import * as actions from "./../editor.actions";
 import { EditorContext } from "./editor-panel.component";
-import { isNullOrUndefined } from "util";
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 const Overlay = () => {
-  const { dom, lines, rowHeight, scrollRange, dispatch } = useContext(
-    EditorContext
-  );
+  const state = useContext(EditorContext);
+  const {
+    dom,
+    lines,
+    index,
+    focusedRow,
+    rowHeight,
+    scrollRange,
+    shortcutPatterns,
+    dispatch
+  } = state;
   const divEl = useRef(null);
   const [cursorPos, setCursorPos] = useState({
     top: undefined,
     left: undefined
   });
-
+  const [startSelection, setStartSelection] = useState(false);
   const callbackCursorPos = e => {
-    const { next, row, rowY, rowX } = getXPositions(e, divEl, dom)(
+    const { next, row } = getXPositions(e, divEl, dom)(
       scrollRange,
       rowHeight,
       lines
     );
-    setCursorPos({ top: rowY, left: rowX });
     dispatch(actions.setCursorPosition(row, next));
   };
+  useEffect(() => {
+    if (focusedRow >= 0 && index >= 0) {
+      const { token, el } = getTokenFromIndex(dom.tokens[focusedRow])(
+        lines[focusedRow],
+        index
+      );
+      const screenIndex = focusedRow - scrollRange.start;
+      const top = rowHeight * screenIndex;
+      if (token) {
+        const left = Math.trunc(getCursorXScreenPos(el)(token, index));
+        setCursorPos({ top, left });
+      } else {
+        const left = getLastCurxPosition(dom.tokens[screenIndex]);
+        setCursorPos({ top, left });
+      }
+    }
+  }, [index, focusedRow, lines, dom.tokens, rowHeight, scrollRange.start]);
+
+  const callbackKeyDown = createKeydownCallback(
+    dispatch,
+    state,
+    shortcutPatterns
+  );
 
   if (dom.lines.length > 0) {
     return (
       <div
         ref={divEl}
+        tabIndex="0"
         className="front-editor"
+        onKeyDown={callbackKeyDown}
         onMouseDown={e => {
+          setStartSelection(true);
           e.stopPropagation();
           callbackCursorPos(e);
         }}
         onMouseUp={e => {
+          setStartSelection(false);
           e.stopPropagation();
           callbackCursorPos(e);
+        }}
+        onMouseMove={e => {
+          if (startSelection) {
+            e.stopPropagation();
+            callbackCursorPos(e);
+          }
         }}
       >
         {cursorPos.top !== undefined && cursorPos.left !== undefined ? (
@@ -55,19 +94,15 @@ const getXPositions = (e, parentEl, dom) => (scrollRange, rowHeight, lines) => {
   const { clientX, clientY } = e;
   const { top } = parentEl.current.getBoundingClientRect();
   const posY = clientY - top;
-
   const row = Math.trunc(posY / rowHeight) + scrollRange.start;
-  const rowY = Math.trunc(posY / rowHeight) * rowHeight;
-
   if (row < scrollRange.start + scrollRange.offset) {
     const { token, el } = getTokenFromEl(clientX, dom.tokens[row])(lines[row]);
 
     return token && el
-      ? { ...getCursorXPositions(clientX, el)(token), row, rowY }
+      ? { ...getCursorXPositions(clientX, el)(token), row }
       : {
-          ...getLastXPositions(clientX, dom.tokens[row])(lines[row]),
-          row,
-          rowY
+          ...getLastXPositions(lines[row]),
+          row
         };
   }
   return {};
@@ -84,23 +119,34 @@ const getTokenFromEl = (clientX, tokensEl) => line =>
     { token: undefined, el: undefined }
   );
 
+const getTokenFromIndex = tokensEl => (line, index) =>
+  line.tokens.reduce(
+    (a, t, i) =>
+      index >= t.start && index <= t.stop ? { token: t, el: tokensEl[i] } : a,
+    { token: undefined, el: undefined }
+  );
+
 const getCursorXPositions = (clientX, el) => ({ start, value }) => {
   const { width, left } = el.getBoundingClientRect();
   const chasse = width / value.length; // char width in pixel
   const curX = clientX - left; // cursor pos in token, in pixel
   const tokX = Math.trunc(curX / chasse); // nb char in token before cursor
   const next = start + tokX; // nb char in row before cursor
-  const rowX = tokX * chasse + el.offsetLeft; // cur pos in row, at char start position
-  return { next, rowX };
+  return { next };
 };
 
-const getLastXPositions = (clientX, tokensEl) => line => {
-  const width = tokensEl.reduce(
-    (w, t) => w + t.getBoundingClientRect().width,
-    0
-  );
-
-  return { next: line.value.length, rowX: width };
+const getLastXPositions = line => {
+  return { next: line.value.length };
 };
+
+/* */
+const getCursorXScreenPos = (el, rowHeight) => ({ value, start }, index) => {
+  const { width } = el.getBoundingClientRect();
+  const chasse = width / value.length; // char width in pixel
+  return chasse * (index - start) + el.offsetLeft;
+};
+
+const getLastCurxPosition = tokensEl =>
+  tokensEl.reduce((a, el) => a + el.getBoundingClientRect().width, 0);
 
 export default Overlay;
