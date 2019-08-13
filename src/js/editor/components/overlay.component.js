@@ -40,6 +40,22 @@ const Overlay = () => {
     shortcutPatterns
   );
 
+  if (divEl.current) {
+    divEl.current.addEventListener(
+      "wheel",
+      e => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.deltaY > 0) {
+          dispatch(actions.scrollDown());
+        } else if (e.deltaY < 0) {
+          dispatch(actions.scrollUp());
+        }
+      },
+      { active: true }
+    );
+  }
+
   if (dom.lines.length > 0) {
     return (
       <div
@@ -53,7 +69,6 @@ const Overlay = () => {
           const { newFocusedRow, newIndex } = getCursorPosition(e, divEl, dom)(
             state
           );
-          console.log(e.button);
           setAnchor({ row: newFocusedRow, index: newIndex });
           setExtent(undefined);
           dispatch(actions.setCursorPosition(newFocusedRow, newIndex));

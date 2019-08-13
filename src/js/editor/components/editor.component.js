@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { EditorContext } from "./editor-panel.component";
 import Line from "./line.component";
 import Overlay from "./overlay.component";
 import * as actions from "./../editor.actions";
-import FrontEditor from "./front-editor.component";
 
 const Editor = ({ parse }) => {
   const editorEl = useRef();
@@ -51,12 +50,10 @@ const Editor = ({ parse }) => {
 
 const ScrollUpDown = ({ parentEl }) => {
   const { lines, scrollRange } = useContext(EditorContext);
-  if (parentEl) {
-    const offset = scrollRange.stop - scrollRange.start + 1;
+  if (parentEl && lines.length > scrollRange.offset) {
     const { height } = parentEl.getBoundingClientRect();
-    const dgHeight = Math.max((offset / lines.length) * height, 10);
+    const dgHeight = Math.max((scrollRange.offset / lines.length) * height, 10);
     const dgStart = (scrollRange.start / lines.length) * height;
-
     return (
       <div className="scroll-up-down" style={{ height }}>
         <span className="dragger" style={{ height: dgHeight, top: dgStart }} />
