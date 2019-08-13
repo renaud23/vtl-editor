@@ -96,6 +96,13 @@ const Overlay = () => {
               divEl,
               dom
             )(state);
+            if (anchor.row === undefined) {
+              const row =
+                scrollRange.start +
+                Math.min(scrollRange.offset, lines.length) -
+                1;
+              setAnchor({ row, index: lines[row].value.length });
+            }
             if (newFocusedRow >= 0 && newIndex >= 0) {
               setExtent({ row: newFocusedRow, index: newIndex });
               dispatch(actions.setCursorPosition(newFocusedRow, newIndex));
@@ -149,7 +156,6 @@ const getCursorPosition = (e, parentEl, dom) => ({
   const posY = clientY - top;
   const screenRow = Math.trunc(posY / rowHeight);
   const newFocusedRow = screenRow + scrollRange.start;
-  console.log(screenRow, scrollRange.offset);
   if (
     screenRow < scrollRange.offset &&
     screenRow + scrollRange.start < lines.length
