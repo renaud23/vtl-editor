@@ -94,6 +94,7 @@ $rowHeight: 22px;
 
     /* */
     .front-editor {
+      cursor: text;
       @include layer(2);
       &:focus {
         outline: none;
