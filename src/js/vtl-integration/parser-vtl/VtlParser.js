@@ -1,5 +1,7 @@
 // Generated from Vtl.g4 by ANTLR 4.7.2
 // jshint ignore: start
+
+/* eslint-disable */
 var antlr4 = require('antlr4/index');
 var VtlListener = require('./VtlListener').VtlListener;
 var grammarFileName = "Vtl.g4";

@@ -1,5 +1,5 @@
 $defaultBgColor: rgb(30, 30, 30);
-$bgDarkerColor: rgb(50, 50, 50);
+$bgLighterColor: rgb(50, 50, 50);
 $numberWidth: 50px;
 $rowHeight: 22px;
 @mixin cursor {
@@ -51,7 +51,7 @@ $rowHeight: 22px;
     width: $numberWidth;
 
     .row-numbers-container {
-      border-right: 1px solid $bgDarkerColor;
+      border-right: 1px solid $bgLighterColor;
       width: 33px;
       .row {
         height: $rowHeight;
@@ -82,12 +82,12 @@ $rowHeight: 22px;
       position: absolute;
       right: 0;
       top: 0;
-      border-left: solid $bgDarkerColor 1px;
+      border-left: solid $bgLighterColor 1px;
 
       .dragger {
         position: absolute;
         display: inline-block;
-        background-color: red;
+        background-color: rgba(100, 100, 100, 0.8);
         width: 12px;
       }
     }
@@ -107,31 +107,6 @@ $rowHeight: 22px;
         position: absolute;
         height: $rowHeight;
         background-color: rgba(100, 100, 0, 0.5);
-      }
-      // .row {
-      //   cursor: text;
-      // }
-    }
-    /* */
-    .overlay {
-      @include layer(1);
-
-      .row {
-        .cursor {
-          @include cursor();
-          position: absolute;
-        }
-
-        .unselected {
-          height: 100%;
-          display: inline-block;
-          background-color: transparent;
-        }
-        .selected {
-          height: 100%;
-          display: inline-block;
-          background-color: rgba(38, 79, 120, 0.6);
-        }
       }
     }
 
@@ -193,4 +168,14 @@ $rowHeight: 22px;
       width: 18em;
     }
   }
+}
+
+.row-test {
+  white-space: pre;
+  height: $rowHeight;
+  font-size: 15px;
+  tab-size: 1em;
+  font-family: Consolas, Monaco, "Courier New", Courier, monospace;
+  background-color: $defaultBgColor;
+  color: antiquewhite;
 }
