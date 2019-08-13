@@ -143,43 +143,36 @@ const singleRowSelection = (chasse) => ({ selection, scrollRange, rowHeight }) =
 };
 
 const multiRowSelection = (chasse) => ({ selection, lines, scrollRange, rowHeight }) => {
-	// if (
-	//   selection.start.row > scrollRange.start + scrollRange.offset - 1 ||
-	//   selection.stop.row < scrollRange.start
-	// )
-	//   return [];
-
 	const blocs = new Array(selection.stop.row - selection.start.row + 1).fill({}).reduce((a, b, i) => {
-		const rowSel = selection.start.row + i;
-		console.log(rowSel);
-		return a;
+		const scrStart = selection.start.row - scrollRange.start;
+		const scrStop = selection.stop.row - scrollRange.start;
+		const rowCurrent = scrStart + i;
+		const bloc =
+			rowCurrent >= 0 && rowCurrent <= scrollRange.offset - 1
+				? [
+						...a,
+						rowCurrent === scrStart
+							? {
+									top: rowCurrent * rowHeight,
+									left: selection.start.index * chasse,
+									width: chasse * (lines[selection.start.row + i].value.length - selection.start.index)
+								}
+							: rowCurrent === scrStop
+								? {
+										top: rowCurrent * rowHeight,
+										left: 0,
+										width: chasse * selection.stop.index
+									}
+								: {
+										top: rowCurrent * rowHeight,
+										left: 0,
+										width: chasse * lines[selection.start.row + i].value.length
+									}
+					]
+				: a;
+
+		return bloc;
 	}, []);
-	// .map((bloc, i) => {
-	//   const top = rowHeight * (selection.start.row + i);
-	//   return {
-	//     left: 0,
-	//     top,
-	//     width: chasse * lines[selection.start.row + i].value.length
-	//   };
-	// });
-
-	// const left = getCursorLeft(
-	//   dom.tokens[selection.start.row - scrollRange.start]
-	// )(lines[selection.start.row], selection.start.index);
-	// const width = blocs[0].width;
-	// blocs[0] = {
-	//   ...blocs[0],
-	//   left,
-	//   width: width - left
-	// };
-
-	// blocs[blocs.length - 1] = {
-	//   ...blocs[blocs.length - 1],
-	//   width: getCursorLeft(dom.tokens[end - scrollRange.start])(
-	//     lines[end],
-	//     selection.stop.index || lines[end].length
-	//   )
-	// };
 
 	return blocs;
 };
