@@ -149,8 +149,11 @@ const getCursorPosition = (e, parentEl, dom) => ({
   const posY = clientY - top;
   const screenRow = Math.trunc(posY / rowHeight);
   const newFocusedRow = screenRow + scrollRange.start;
-
-  if (screenRow < scrollRange.offset) {
+  console.log(screenRow, scrollRange.offset);
+  if (
+    screenRow < scrollRange.offset &&
+    screenRow + scrollRange.start < lines.length
+  ) {
     const newIndex = getCursorIndex(
       clientX,
       parentEl,

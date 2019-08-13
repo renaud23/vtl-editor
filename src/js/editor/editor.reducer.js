@@ -355,6 +355,7 @@ const reduceKeyEnter = ({ focusedRow, index, lines, ...rest }) => {
     selection: undefined,
     index: 0,
     lines: nextLines,
+    // scrollRange,
     ...rest
   };
 };

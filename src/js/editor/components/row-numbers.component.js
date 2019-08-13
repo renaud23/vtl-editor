@@ -3,9 +3,9 @@ import classnames from "classnames";
 import { EditorContext } from "./editor-panel.component";
 
 const RowNumbers = () => {
-  const { scrollRange, focusedRow } = useContext(EditorContext);
+  const { scrollRange, focusedRow, lines } = useContext(EditorContext);
   const offset = scrollRange.stop - scrollRange.start + 1;
-  const numbers = new Array(offset)
+  const numbers = new Array(Math.min(offset, lines.length))
     .fill(scrollRange.start + 1)
     .map((s, i) => s + i);
 

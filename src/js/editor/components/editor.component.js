@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { EditorContext } from "./editor-panel.component";
 import Line from "./line.component";
 import Overlay from "./overlay.component";
@@ -7,7 +7,7 @@ import * as actions from "./../editor.actions";
 const Editor = ({ parse }) => {
   const editorEl = useRef();
   const state = useContext(EditorContext);
-  const { lines, dom, dispatch, scrollRange } = state;
+  const { lines, dom, dispatch, scrollRange, rowHeight } = state;
 
   useEffect(() => {
     const code = lines.reduce(
@@ -24,15 +24,14 @@ const Editor = ({ parse }) => {
       i >= scrollRange.start && i <= scrollRange.stop ? [...a, line] : a,
     []
   );
+
   useEffect(() => {
-    if (editorEl.current && dom.lines.length > 0) {
+    if (editorEl.current) {
       dispatch(
-        actions.setScrollrange(
-          computeScrollRange(editorEl.current, dom.lines, lines.length)
-        )
+        actions.setScrollrange(computeScrollRange(editorEl.current, rowHeight))
       );
     }
-  }, [editorEl, dom.lines.length, dom.lines, lines, dispatch]);
+  }, [editorEl, rowHeight, dispatch]);
 
   return (
     <div className="editor-container">
@@ -63,14 +62,10 @@ const ScrollUpDown = ({ parentEl }) => {
   return null;
 };
 
-const computeScrollRange = (parentEl, linesEl, nbLines) => {
-  if (parentEl && linesEl.length > 0) {
-    const { height: lineHeight } = linesEl[0].getBoundingClientRect();
-    const { height: containerHeight } = parentEl.getBoundingClientRect();
-    const nbRows = Math.min(Math.round(containerHeight / lineHeight), nbLines);
-    return { start: 0, stop: nbRows - 1, offset: nbRows };
-  }
-  return { start: 0, stop: 0, offset: 0 };
+const computeScrollRange = (parentEl, rowHeight) => {
+  const { height } = parentEl.getBoundingClientRect();
+  const offset = Math.round(height / rowHeight);
+  return { start: 0, stop: offset - 1, offset };
 };
 
 export default Editor;
