@@ -3,7 +3,7 @@ $bgDarkerColor: rgb(50, 50, 50);
 $numberWidth: 50px;
 $rowHeight: 22px;
 @mixin cursor {
-  animation: blinker 0.8s step-end infinite;
+  animation: blinker 0.5s step-end infinite;
   position: absolute;
   font-weight: bolder;
   &:before {

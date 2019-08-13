@@ -17,65 +17,22 @@ const Overlay = () => {
     dispatch
   } = state;
   const divEl = useRef(null);
-  const [cursorPos, setCursorPos] = useState({
-    top: undefined,
-    left: undefined
-  });
-  const [startSelection, setStartSelection] = useState(false);
-  const [selectionBlocs, setSelectionBlocs] = useState([]);
-  const callbackCursorPos = e => {
-    const { next, row } = getXPositions(e, divEl, dom)(
-      scrollRange,
-      rowHeight,
-      lines
-    );
-    dispatch(actions.setCursorPosition(row, next));
-    return { next, row };
-  };
+  const [anchor, setAnchor] = useState(undefined);
+  const [extent, setExtent] = useState(undefined);
+  const [cursorPosition, setCursorPosition] = useState(undefined);
+  const [selectionStart, setSelectionStart] = useState(false);
 
-  /* cursor */
   useEffect(() => {
-    if (focusedRow >= 0 && index >= 0) {
-      if (focusedRow > scrollRange.start + scrollRange.offset) {
-        console.log("TODO avancer d'un rang le scrollRange");
-        return;
-      }
-
-      // focusedRow is in offset range
-      const { token, el } = getTokenFromIndex(dom.tokens[focusedRow])(
+    const screenRow = focusedRow - scrollRange.start;
+    const top = rowHeight * screenRow;
+    if (dom.tokens[screenRow]) {
+      const left = getCursorLeft(dom.tokens[screenRow])(
         lines[focusedRow],
         index
       );
-      const screenIndex = focusedRow - scrollRange.start;
-      const top = rowHeight * screenIndex;
-      if (token) {
-        const left = Math.trunc(getCursorXScreenPos(el)(token, index));
-        setCursorPos({ top, left });
-      } else {
-        const left = getLastCurxPosition(dom.tokens[screenIndex]);
-        setCursorPos({ top, left });
-      }
+      setCursorPosition({ top, left });
     }
-  }, [
-    index,
-    focusedRow,
-    lines,
-    dom.tokens,
-    rowHeight,
-    scrollRange.start,
-    scrollRange.offset
-  ]);
-  /* selection */
-  useEffect(() => {
-    if (selection && selection.stop) {
-      const blocs = getSelectionsBlocs(dom, rowHeight)(
-        selection,
-        lines,
-        scrollRange
-      );
-      setSelectionBlocs(blocs);
-    }
-  }, [selection, dom, rowHeight, scrollRange, lines, index]);
+  }, [index, focusedRow, rowHeight, scrollRange.start, dom.tokens, lines]);
 
   const callbackKeyDown = createKeydownCallback(
     dispatch,
@@ -91,48 +48,65 @@ const Overlay = () => {
         className="front-editor"
         onKeyDown={callbackKeyDown}
         onMouseDown={e => {
-          setStartSelection(true);
           e.stopPropagation();
-          const { next, row } = callbackCursorPos(e);
-          dispatch(actions.setSelection({ start: { row, index: next } }));
+          setSelectionStart(true);
+          const { newFocusedRow, newIndex } = getCursorPosition(e, divEl, dom)(
+            state
+          );
+          setAnchor({ row: newFocusedRow, index: newIndex });
+          dispatch(actions.setCursorPosition(newFocusedRow, newIndex));
         }}
         onMouseUp={e => {
-          setStartSelection(false);
           e.stopPropagation();
-          const { next, row } = callbackCursorPos(e);
-          if (selection.start.row === row && selection.start.index === next) {
-            dispatch(actions.setSelection(undefined));
-            setSelectionBlocs([]);
-          }
+          setSelectionStart(false);
+          // if (anchor && extent) {
+          //   if (anchor.row === extent.row && anchor.index === extent.index) {
+          //     setAnchor(undefined);
+          //     setExtent(undefined);
+          //     dispatch(actions.setSelection(undefined));
+          //   } else {
+          //     dispatch(actions.setSelection({ start: anchor, stop: extent }));
+          //   }
+          // } else {
+          dispatch(actions.setSelection(undefined));
+          // }
         }}
         onMouseMove={e => {
-          if (startSelection) {
-            e.stopPropagation();
-            const { next, row } = callbackCursorPos(e);
-            if (selection.start.row !== row || selection.start.index !== next) {
-              dispatch(
-                actions.setSelection({
-                  ...selection,
-                  stop: { row, index: next }
-                })
-              );
-            }
+          if (selectionStart) {
+            const { newFocusedRow, newIndex } = getCursorPosition(
+              e,
+              divEl,
+              dom
+            )(state);
+            setExtent({ row: newFocusedRow, index: newIndex });
+            dispatch(actions.setCursorPosition(newFocusedRow, newIndex));
+            dispatch(
+              actions.setSelection({
+                start: anchor,
+                stop: { row: newFocusedRow, index: newIndex }
+              })
+            );
           }
         }}
       >
-        {cursorPos.top !== undefined && cursorPos.left !== undefined ? (
+        {cursorPosition ? (
           <span
             className="cursor"
-            style={{ top: cursorPos.top, left: cursorPos.left }}
+            style={{
+              left: `${cursorPosition.left}px`,
+              top: `${cursorPosition.top}px`
+            }}
           />
         ) : null}
-        {selectionBlocs.map(({ top, left, width }, i) => (
-          <span
-            className="bloc-selection"
-            key={i}
-            style={{ top, left, width }}
-          />
-        ))}
+        {selection
+          ? getSelectionBlocs(dom)(state).map(({ top, left, width }, i) => (
+              <span
+                key={i}
+                className="bloc-selection"
+                style={{ top, left, width: width === 0 ? 5 : width }}
+              />
+            ))
+          : null}
       </div>
     );
   }
@@ -142,158 +116,115 @@ const Overlay = () => {
 /*
  * CURSOR
  */
-const getXPositions = (e, parentEl, dom) => (scrollRange, rowHeight, lines) => {
+const getCursorPosition = (e, parentEl, dom) => ({
+  lines,
+  scrollRange,
+  rowHeight
+}) => {
   const { clientX, clientY } = e;
   const { top } = parentEl.current.getBoundingClientRect();
   const posY = clientY - top;
-  const row = Math.trunc(posY / rowHeight) + scrollRange.start;
-  if (row < scrollRange.start + scrollRange.offset) {
-    const { token, el } = getTokenFromEl(clientX, dom.tokens[row])(lines[row]);
+  const screenRow = Math.trunc(posY / rowHeight);
+  const newFocusedRow = screenRow + scrollRange.start;
 
-    return token && el
-      ? { ...getCursorXPositions(clientX, el)(token), row }
-      : {
-          ...getLastXPositions(lines[row]),
-          row
-        };
+  if (screenRow < scrollRange.offset) {
+    const newIndex = getCursorIndex(
+      clientX,
+      parentEl,
+      dom.tokens[newFocusedRow]
+    )(lines[newFocusedRow]);
+    return { newFocusedRow, newIndex };
   }
   return {};
 };
 
-const getTokenFromEl = (clientX, tokensEl) => line =>
-  tokensEl.reduce(
-    (a, el, i) => {
-      const { left, width } = el.getBoundingClientRect();
-      return clientX >= left && clientX <= left + width
-        ? { el, token: line.tokens[i] }
-        : a;
-    },
-    { token: undefined, el: undefined }
-  );
-
-const getTokenFromIndex = tokensEl => (line, index) =>
-  tokensEl
-    ? line.tokens.reduce(
-        (a, t, i) =>
-          index >= t.start && index <= t.stop
-            ? { token: t, el: tokensEl[i] }
-            : a,
-        {}
-      )
-    : {};
-
-const getCursorXPositions = (clientX, el) => ({ start, value }) => {
-  const { width, left } = el.getBoundingClientRect();
-  const chasse = width / value.length; // char width in pixel
-  const curX = clientX - left; // cursor pos in token, in pixel
-  const tokX = Math.trunc(curX / chasse); // nb char in token before cursor
-  const next = start + tokX; // nb char in row before cursor
-  return { next };
+const getCursorIndex = (clientX, parentEl, tokensEl) => line => {
+  const { left } = parentEl.current.getBoundingClientRect();
+  const rowWidth =
+    line.value.length === 0
+      ? 0
+      : tokensEl.reduce((a, el) => el.getBoundingClientRect().width + a, 0);
+  const chasse = rowWidth / line.value.length;
+  const index = Math.trunc((clientX - left) / chasse);
+  return Math.min(index, line.value.length);
 };
 
-const getLastXPositions = line => {
-  return { next: line.value.length };
-};
+const getCursorLeft = tokensEl => (line, index) => {
+  const rowWidth =
+    line.value.length === 0
+      ? 0
+      : tokensEl.reduce((a, el) => el.getBoundingClientRect().width + a, 0);
+  const chasse = rowWidth / line.value.length;
 
-/* */
-const getCursorXScreenPos = el => ({ value, start }, index) => {
-  const { width } = el.getBoundingClientRect();
-  const chasse = width / value.length; // char width in pixel
-  return chasse * (index - start) + el.offsetLeft;
+  return Math.trunc(chasse * index);
 };
-
-const getLastCurxPosition = tokensEl =>
-  tokensEl
-    ? tokensEl.reduce((a, el) => a + el.getBoundingClientRect().width, 0)
-    : 0;
 
 /*
  * SELECTION
  */
+const getSelectionBlocs = dom => state =>
+  state.selection.start.row === state.selection.stop.row
+    ? singleRowSelection(dom)(state)
+    : multiRowSelection(dom)(state);
 
-const getSelectionsBlocs = (dom, rowHeight) => (
+const singleRowSelection = dom => ({
   selection,
+  scrollRange,
   lines,
+  rowHeight
+}) => {
+  const top = rowHeight * selection.start.row;
+  const left = getCursorLeft(
+    dom.tokens[selection.start.row - scrollRange.start]
+  )(lines[selection.start.row], selection.start.index);
 
-  scrollRange
-) =>
-  selection && selection.stop
-    ? selection.start.row === selection.stop.row
-      ? singleRowSelection(dom, rowHeight)(selection, lines, scrollRange)
-      : MultiRowSelection(dom, rowHeight)(selection, lines, scrollRange)
-    : [];
+  const width =
+    getCursorLeft(dom.tokens[selection.stop.row - scrollRange.start])(
+      lines[selection.stop.row],
+      selection.stop.index
+    ) - left;
 
-const singleRowSelection = (dom, rowHeight) => (
-  selection,
-  lines,
-  scrollRange
-) => {
-  return [];
+  return [{ top, width, left }];
 };
 
-const MultiRowSelection = (dom, rowHeight) => (
-  { start, stop }, //selection
+const multiRowSelection = dom => ({
+  selection,
   lines,
-  scrollRange
-) => {
-  const blocs = new Array(stop.row - start.row + 1)
+  scrollRange,
+  rowHeight
+}) => {
+  const end =
+    selection.stop.row >= 0 ? selection.stop.row : scrollRange.offset - 1;
+  const blocs = new Array(end - selection.start.row + 1)
     .fill({})
-    .map((b, i) =>
-      getFullRow(dom.tokens[start.row + i], start.row + i, rowHeight)(
-        lines[start.row],
-        start.index
-      )
-    );
-  const anchorScreenRow = start.row - scrollRange.start;
-  blocs[0] = getAnchorBloc(dom.tokens[anchorScreenRow], start.row, rowHeight)(
-    lines[start.row],
-    start.index
-  );
+    .map((bloc, i) => {
+      const top = rowHeight * (selection.start.row + i);
+      return {
+        left: 0,
+        top,
+        width: dom.tokens[selection.start.row + i - scrollRange.start].reduce(
+          (a, t) => t.getBoundingClientRect().width + a,
+          0
+        )
+      };
+    });
 
-  if (stop.row >= 0 && stop.index >= 0) {
-    // const extentScreenRow = stop.row - scrollRange.start;
-    // blocs[blocs.length - 1] = getExtentBloc(
-    //   dom.tokens[extentScreenRow],
-    //   stop.row,
-    //   rowHeight
-    // )(lines[start.row], stop.index);
-  }
-
-  return blocs;
-};
-
-const getAnchorBloc = (tokensEl, rowScreen, rowHeight) => (line, index) => {
-  const { token, el } = getTokenFromIndex(tokensEl)(line, index);
-  if (token) {
-    const left = getCursorXScreenPos(el)(token, index);
-    return {
-      left,
-      top: rowScreen * rowHeight,
-      width: getLastCurxPosition(tokensEl) - left
-    };
-  }
-  return {};
-};
-
-const getExtentBloc = (tokensEl, rowScreen, rowHeight) => (line, index) => {
-  const { token, el } = getTokenFromIndex(tokensEl)(line, index);
-  if (token) {
-    const width = getCursorXScreenPos(el)(token, index);
-    return {
-      left: 0,
-      top: rowScreen * rowHeight,
-      width
-    };
-  }
-  return {};
-};
-
-const getFullRow = (tokensEl, rowScreen, rowHeight) => (line, index) => {
-  return {
-    left: 0,
-    top: rowScreen * rowHeight,
-    width: getLastCurxPosition(tokensEl)
+  blocs[0] = {
+    ...blocs[0],
+    left: getCursorLeft(dom.tokens[selection.start.row - scrollRange.start])(
+      lines[selection.start.row],
+      selection.start.index
+    )
   };
+
+  blocs[blocs.length - 1] = {
+    ...blocs[blocs.length - 1],
+    width: getCursorLeft(dom.tokens[end - scrollRange.start])(
+      lines[end],
+      selection.stop.index || lines[end].length
+    )
+  };
+  return blocs;
 };
 
 export default Overlay;
