@@ -53,23 +53,26 @@ const Overlay = () => {
           const { newFocusedRow, newIndex } = getCursorPosition(e, divEl, dom)(
             state
           );
+          console.log(e.button);
           setAnchor({ row: newFocusedRow, index: newIndex });
+          setExtent(undefined);
           dispatch(actions.setCursorPosition(newFocusedRow, newIndex));
+          dispatch(actions.setSelection(undefined));
         }}
+        onMouseLeave={e => setSelectionStart(false)}
         onMouseUp={e => {
           e.stopPropagation();
           setSelectionStart(false);
-          // if (anchor && extent) {
-          //   if (anchor.row === extent.row && anchor.index === extent.index) {
-          //     setAnchor(undefined);
-          //     setExtent(undefined);
-          //     dispatch(actions.setSelection(undefined));
-          //   } else {
-          //     dispatch(actions.setSelection({ start: anchor, stop: extent }));
-          //   }
-          // } else {
-          dispatch(actions.setSelection(undefined));
-          // }
+          if (
+            !extent ||
+            (extent &&
+              anchor.row === extent.row &&
+              anchor.index === extent.index)
+          ) {
+            dispatch(actions.setSelection(undefined));
+          }
+          setAnchor(undefined);
+          setExtent(undefined);
         }}
         onMouseMove={e => {
           if (selectionStart) {
@@ -78,14 +81,19 @@ const Overlay = () => {
               divEl,
               dom
             )(state);
-            setExtent({ row: newFocusedRow, index: newIndex });
-            dispatch(actions.setCursorPosition(newFocusedRow, newIndex));
-            dispatch(
-              actions.setSelection({
-                start: anchor,
-                stop: { row: newFocusedRow, index: newIndex }
-              })
-            );
+            if (newFocusedRow >= 0 && newIndex >= 0) {
+              setExtent({ row: newFocusedRow, index: newIndex });
+              dispatch(actions.setCursorPosition(newFocusedRow, newIndex));
+              if (anchor.row !== newFocusedRow || anchor.index !== newIndex) {
+                const ne = { row: newFocusedRow, index: newIndex };
+                const next =
+                  anchor.row > newFocusedRow ||
+                  (anchor.row === newFocusedRow && anchor.index > newIndex)
+                    ? { start: { ...ne }, stop: { ...anchor } }
+                    : { start: { ...anchor }, stop: { ...ne } };
+                dispatch(actions.setSelection(next));
+              }
+            }
           }
         }}
       >
@@ -133,6 +141,7 @@ const getCursorPosition = (e, parentEl, dom) => ({
       parentEl,
       dom.tokens[newFocusedRow]
     )(lines[newFocusedRow]);
+
     return { newFocusedRow, newIndex };
   }
   return {};
@@ -145,7 +154,8 @@ const getCursorIndex = (clientX, parentEl, tokensEl) => line => {
       ? 0
       : tokensEl.reduce((a, el) => el.getBoundingClientRect().width + a, 0);
   const chasse = rowWidth / line.value.length;
-  const index = Math.trunc((clientX - left) / chasse);
+  const index = chasse ? Math.trunc((clientX - left) / chasse) : 0;
+
   return Math.min(index, line.value.length);
 };
 
@@ -156,7 +166,7 @@ const getCursorLeft = tokensEl => (line, index) => {
       : tokensEl.reduce((a, el) => el.getBoundingClientRect().width + a, 0);
   const chasse = rowWidth / line.value.length;
 
-  return Math.trunc(chasse * index);
+  return chasse ? Math.trunc(chasse * index) : 0;
 };
 
 /*
@@ -209,12 +219,14 @@ const multiRowSelection = dom => ({
       };
     });
 
+  const left = getCursorLeft(
+    dom.tokens[selection.start.row - scrollRange.start]
+  )(lines[selection.start.row], selection.start.index);
+  const width = blocs[0].width;
   blocs[0] = {
     ...blocs[0],
-    left: getCursorLeft(dom.tokens[selection.start.row - scrollRange.start])(
-      lines[selection.start.row],
-      selection.start.index
-    )
+    left,
+    width: width - left
   };
 
   blocs[blocs.length - 1] = {
