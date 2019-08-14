@@ -475,8 +475,7 @@ const insertText = (state, text) => {
   const { focusedRow, index } = state;
   if (focusedRow !== undefined && index !== undefined) {
     const newRows = text.split(/\n/);
-
-    if (newRows[newRows.length - 1].length === 0) newRows.pop();
+    // if (newRows[newRows.length - 1].length === 0) newRows.pop();
     const lines = state.lines.reduce(
       (a, line, row) =>
         row === focusedRow
