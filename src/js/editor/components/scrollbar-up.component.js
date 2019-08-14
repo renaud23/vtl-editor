@@ -1,16 +1,20 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { EditorContext } from "./editor-panel.component";
 import * as actions from "./../editor.actions";
 
 const ScrollUpDown = ({ parentEl }) => {
   const state = useContext(EditorContext);
   const { lines, scrollRange, selection, index, focusedRow, dispatch } = state;
+  const [scrollY, setScrollY] = useState(window.scrollY);
+
+  window.addEventListener("scroll", e => {
+    setScrollY(window.scrollY);
+  });
 
   if (parentEl) {
     const dragger = parentEl && lines.length > scrollRange.offset;
     const { height, top } = parentEl.getBoundingClientRect();
-    const dgHeight = Math.max((scrollRange.offset / lines.length) * height, 10);
-    const dgStart = (scrollRange.start / lines.length) * height;
+
     return (
       <div
         className="scroll-up-down"
@@ -18,20 +22,14 @@ const ScrollUpDown = ({ parentEl }) => {
         onClick={e => {
           e.stopPropagation();
           if (dragger) {
-            const clickPosition =
-              e.clientY - top + window.scrollY - window.scrollY;
+            const clickPosition = e.clientY - top + window.scrollY - scrollY;
             const percent = clickPosition / height;
             const sr = computeScrollrange(state)(percent);
             dispatch(actions.setScrollrange(sr));
           }
         }}
       >
-        {dragger ? (
-          <span
-            className="dragger"
-            style={{ height: dgHeight, top: dgStart }}
-          />
-        ) : null}
+        {dragger ? <Dragguer height={height} /> : null}
         {selection ? (
           <Selection
             {...selection}
@@ -51,6 +49,24 @@ const ScrollUpDown = ({ parentEl }) => {
   }
 
   return null;
+};
+
+const Dragguer = ({ height }) => {
+  const state = useContext(EditorContext);
+  const { lines, scrollRange } = state;
+
+  const [dgHeight, setDgHeight] = useState(0);
+  const [dgTop, setDgTop] = useState(0);
+
+  useEffect(() => {
+    setDgHeight(Math.max((scrollRange.offset / lines.length) * height, 5));
+  }, [scrollRange.offset, lines.length, height]);
+
+  useEffect(() => {
+    setDgTop((scrollRange.start / lines.length) * height);
+  }, [scrollRange.start, lines.length, height]);
+
+  return <span className="dragger" style={{ height: dgHeight, top: dgTop }} />;
 };
 
 const Selection = ({ start, stop, parentHeight, nbLines }) => {
