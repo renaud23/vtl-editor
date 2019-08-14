@@ -76,6 +76,8 @@ $rowHeight: 22px;
     width: 100%; //calc(100% - $numberWidth);
 
     .scroll-up-down {
+      z-index: 4;
+      cursor: default;
       position: relative;
       width: 12px;
       background-color: transparent;
@@ -105,8 +107,11 @@ $rowHeight: 22px;
       .dragger {
         position: absolute;
         display: inline-block;
-        background-color: rgba(100, 100, 100, 0.8);
+        background-color: rgba(224, 218, 218, 0.4);
         width: 12px;
+        &:hover {
+          background-color: rgba(224, 218, 218, 0.6);
+        }
       }
     }
 
@@ -137,7 +142,7 @@ $rowHeight: 22px;
         white-space: pre;
         height: $rowHeight;
         font-size: 15px;
-        tab-size: 0.6em;
+        tab-size: 0.55em;
         font-family: Consolas, Monaco, "Courier New", Courier, monospace;
         background-color: $defaultBgColor;
         color: antiquewhite;
