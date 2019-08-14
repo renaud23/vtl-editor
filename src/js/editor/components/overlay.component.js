@@ -145,7 +145,10 @@ const getCursorPosition = (e, parentEl, chasse) => ({
   const { top, left } = parentEl.current.getBoundingClientRect();
   const posY = clientY - top;
   const screenRow = Math.trunc(posY / rowHeight); // top
-  const newFocusedRow = screenRow + scrollRange.start;
+  const newFocusedRow = Math.min(
+    screenRow + scrollRange.start,
+    lines.length - 1
+  );
   if (screenRow < scrollRange.offset && screenRow < lines.length) {
     const newIndex = Math.trunc((clientX - left) / chasse);
     return {

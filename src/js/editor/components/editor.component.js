@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef } from "react";
 import { EditorContext } from "./editor-panel.component";
+import ScrollUpDown from "./scrollbar-up.component";
 import Line from "./line.component";
 import Overlay from "./overlay.component";
 import * as actions from "./../editor.actions";
@@ -45,21 +46,6 @@ const Editor = ({ parse }) => {
       <Overlay lines={lines} el={editorEl} />
     </div>
   );
-};
-
-const ScrollUpDown = ({ parentEl }) => {
-  const { lines, scrollRange } = useContext(EditorContext);
-  if (parentEl && lines.length > scrollRange.offset) {
-    const { height } = parentEl.getBoundingClientRect();
-    const dgHeight = Math.max((scrollRange.offset / lines.length) * height, 10);
-    const dgStart = (scrollRange.start / lines.length) * height;
-    return (
-      <div className="scroll-up-down" style={{ height }}>
-        <span className="dragger" style={{ height: dgHeight, top: dgStart }} />
-      </div>
-    );
-  }
-  return null;
 };
 
 const computeScrollRange = (parentEl, rowHeight) => {
