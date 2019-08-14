@@ -42,7 +42,6 @@ const Editor = ({ parse }) => {
         ))}
       </div>
       <ScrollUpDown parentEl={editorEl.current} />
-      {/* <FrontEditor lines={lines} />   */}
       <Overlay lines={lines} el={editorEl} />
     </div>
   );

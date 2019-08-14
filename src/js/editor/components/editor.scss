@@ -88,6 +88,7 @@ $rowHeight: 22px;
       margin: 0;
 
       .selection {
+        z-index: 3;
         position: absolute;
         display: inline-block;
         background-color: rgba(250, 74, 215, 0.8);
@@ -97,7 +98,8 @@ $rowHeight: 22px;
         right: 0;
       }
 
-      .cursor {
+      .cursor-selection {
+        z-index: 3;
         position: absolute;
         display: inline-block;
         background-color: rgba(198, 228, 31, 0.8);

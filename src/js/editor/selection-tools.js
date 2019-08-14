@@ -2,7 +2,6 @@ const SELECTION_TOOLS = {};
 
 /* ({lines, selection}) =>  string  */
 export const getSelection = ({ lines, selection: { stop, start } }) => {
-  console.log(start, stop);
   const copy = lines
     .map(({ value }, row) =>
       row === start.row

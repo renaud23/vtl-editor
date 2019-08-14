@@ -5,10 +5,9 @@ import * as actions from "./../editor.actions";
 const ScrollUpDown = ({ parentEl }) => {
   const state = useContext(EditorContext);
   const { lines, scrollRange, selection, index, focusedRow, dispatch } = state;
-  const [scrollY, setScrollY] = useState(window.scrollY);
 
   window.addEventListener("scroll", e => {
-    setScrollY(window.scrollY);
+    // TODO something
   });
 
   if (parentEl) {
@@ -19,17 +18,18 @@ const ScrollUpDown = ({ parentEl }) => {
       <div
         className="scroll-up-down"
         style={{ height }}
-        onClick={e => {
+        onMouseDown={e => {
           e.stopPropagation();
           if (dragger) {
-            const clickPosition = e.clientY - top + window.scrollY - scrollY;
+            const clickPosition = e.clientY - top;
             const percent = clickPosition / height;
             const sr = computeScrollrange(state)(percent);
             dispatch(actions.setScrollrange(sr));
           }
         }}
+        onMouseUp={e => e.stopPropagation()}
       >
-        {dragger ? <Dragguer height={height} /> : null}
+        {dragger ? <Dragguer height={height} parentEl={parentEl} /> : null}
         {selection ? (
           <Selection
             {...selection}
@@ -50,11 +50,13 @@ const ScrollUpDown = ({ parentEl }) => {
 
   return null;
 };
-
-const Dragguer = ({ height }) => {
+/* */
+const Dragguer = ({ height, parentEl }) => {
   const state = useContext(EditorContext);
-  const { lines, scrollRange } = state;
+  const { lines, scrollRange, dispatch } = state;
 
+  const [offsetY, setOffsetY] = useState(0);
+  const [drag, setDrag] = useState(false);
   const [dgHeight, setDgHeight] = useState(0);
   const [dgTop, setDgTop] = useState(0);
 
@@ -66,20 +68,69 @@ const Dragguer = ({ height }) => {
     setDgTop((scrollRange.start / lines.length) * height);
   }, [scrollRange.start, lines.length, height]);
 
-  return <span className="dragger" style={{ height: dgHeight, top: dgTop }} />;
+  useEffect(() => {
+    if (drag) {
+      const dragEvent = e => {
+        const varY = (e.clientY - offsetY) / height;
+        const varLines = Math.round(lines.length * varY);
+        const ps = scrollRange.start + varLines;
+        const start =
+          varLines > 0
+            ? Math.min(ps, lines.length - scrollRange.offset - 1)
+            : Math.max(ps, 0);
+        const stop =
+          varLines > 0
+            ? Math.min(start + scrollRange.offset - 1, lines.length - 1)
+            : Math.max(start + scrollRange.offset - 1, 0);
+        setOffsetY(e.clientY);
+        console.log(varLines);
+        dispatch(actions.setScrollrange({ ...scrollRange, start, stop }));
+      };
+      const upEvent = e => {
+        setDrag(false);
+        document.removeEventListener("mousemove", dragEvent);
+      };
+      document.addEventListener("mousemove", dragEvent);
+      document.addEventListener("mouseup", upEvent);
+      return () => {
+        document.removeEventListener("mousemove", dragEvent);
+        document.removeEventListener("mouseup", upEvent);
+      };
+    }
+  }, [drag, scrollRange, dgTop, lines.length, offsetY, height, dispatch]);
+
+  return (
+    <span
+      className="dragger"
+      style={{ height: dgHeight, top: dgTop }}
+      onMouseDown={e => {
+        e.stopPropagation();
+        setOffsetY(e.clientY);
+        setDrag(true);
+      }}
+      onMouseUp={e => {
+        e.stopPropagation();
+        setOffsetY(0);
+        setDrag(false);
+      }}
+    />
+  );
 };
 
+/* */
 const Selection = ({ start, stop, parentHeight, nbLines }) => {
   const top = Math.round((start.row / nbLines) * parentHeight);
   const height = Math.round(((stop.row - start.row) / nbLines) * parentHeight);
   return <span className="selection" style={{ top, height }} />;
 };
 
+/* */
 const Cursor = ({ focusedRow, parentHeight, nbLines }) => {
   const top = Math.round((focusedRow / nbLines) * parentHeight);
-  return <span className="cursor" style={{ top }} />;
+  return <span className="cursor-selection" style={{ top }} />;
 };
 
+/* */
 const computeScrollrange = ({ scrollRange: sr, lines }) => percent => {
   const start = Math.min(
     Math.round(lines.length * percent),
