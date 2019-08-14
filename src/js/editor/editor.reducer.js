@@ -28,22 +28,10 @@ const reducer = (state, action) => {
     switch (action.type) {
       /* SCROLL */
       case actions.SCROLL_DOWN: {
-        return scrollDown(state);
+        return reduceScrollDown(state);
       }
-      case actions.SCROLL_UP: {
-        const {
-          scrollRange: { start, stop, offset }
-        } = state;
-
-        return {
-          ...state,
-          scrollRange: {
-            offset,
-            start: Math.max(start - 2, 0),
-            stop: Math.max(stop - 2, offset - 1)
-          }
-        };
-      }
+      case actions.SCROLL_UP:
+        return reduceScrollUp(state);
       case actions.SET_SCROLLRANGE:
         return {
           ...state,
@@ -523,7 +511,7 @@ const insertInLine = index => (line, rows) => {
 const setSelection = (state, selection) => ({ ...state, selection });
 
 /* SCROLL */
-const scrollDown = state => {
+const reduceScrollDown = state => {
   const {
     scrollRange: { start, stop, offset },
     lines
@@ -539,6 +527,21 @@ const scrollDown = state => {
           stop: Math.min(stop + 2, lines.length - 1)
         }
       };
+};
+
+const reduceScrollUp = state => {
+  const {
+    scrollRange: { start, stop, offset }
+  } = state;
+
+  return {
+    ...state,
+    scrollRange: {
+      offset,
+      start: Math.max(start - 2, 0),
+      stop: Math.max(stop - 2, offset - 1)
+    }
+  };
 };
 
 export default reducer;
