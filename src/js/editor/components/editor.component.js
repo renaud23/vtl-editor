@@ -64,7 +64,7 @@ const ScrollUpDown = ({ parentEl }) => {
 
 const computeScrollRange = (parentEl, rowHeight) => {
   const { height } = parentEl.getBoundingClientRect();
-  const offset = Math.round(height / rowHeight);
+  const offset = Math.trunc(height / rowHeight);
   return { start: 0, stop: offset - 1, offset };
 };
 

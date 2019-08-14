@@ -209,6 +209,7 @@ const getFocusedToken = lines => (focusedRow, index) =>
 
 /* ARROW_LEFT */
 const reduceKeyLeft = state => {
+  const { scrollRange: sr, lines } = state;
   const focusedRow =
     state.index - 1 < 0 ? Math.max(0, state.focusedRow - 1) : state.focusedRow;
   const index =
@@ -217,12 +218,23 @@ const reduceKeyLeft = state => {
         ? state.focusedRow
         : getRowLength({ ...state, focusedRow })
       : state.index - 1;
-
-  return { ...state, selection: undefined, index, focusedRow };
+  const start = focusedRow >= sr.start ? sr.start : focusedRow;
+  return {
+    ...state,
+    selection: undefined,
+    index,
+    focusedRow,
+    scrollRange: {
+      ...sr,
+      start,
+      stop: Math.min(start + sr.offset - 1, lines.length - 1)
+    }
+  };
 };
 
 /* ARROW_RIGHT */
 const reduceKeyRight = state => {
+  const { scrollRange: sr } = state;
   const currentLength = getRowLength(state);
   const focusedRow =
     state.index + 1 > currentLength
@@ -234,8 +246,14 @@ const reduceKeyRight = state => {
         ? getRowLength({ ...state, focusedRow })
         : 0
       : state.index + 1;
-
-  return { ...state, selection: undefined, index, focusedRow };
+  const stop = focusedRow <= sr.stop ? sr.stop : focusedRow;
+  return {
+    ...state,
+    selection: undefined,
+    index,
+    focusedRow,
+    scrollRange: { ...sr, start: Math.max(stop - sr.offset + 1, 0), stop }
+  };
 };
 
 /* ARROW_UP */
