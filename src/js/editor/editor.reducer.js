@@ -427,7 +427,7 @@ const getNewRow = (string, old = {}) => ({
 
 /* DELETE_SELECTION */
 const deleteSelection = state => {
-  const { selection } = state;
+  const { selection, scrollRange: sr } = state;
   const lines = state.lines
     .reduce(
       (a, line, i) =>
@@ -440,12 +440,21 @@ const deleteSelection = state => {
       ({ value }, i) =>
         value.length > 0 || i < selection.start.row || i > selection.stop.row
     );
+  const focusedRow = selection.start.row;
   return {
     ...state,
     lines: lines.length > 0 ? lines : [{ value: "", tokens: [] }],
-    focusedRow: selection.start.row,
+    focusedRow,
     index: selection.start.index,
-    selection: undefined
+    selection: undefined,
+    scrollRange:
+      focusedRow >= sr.start && focusedRow <= sr.stop
+        ? sr
+        : {
+            ...sr,
+            start: focusedRow,
+            stop: Math.min(focusedRow + sr.offset - 1, lines.length - 1)
+          }
   };
 };
 
