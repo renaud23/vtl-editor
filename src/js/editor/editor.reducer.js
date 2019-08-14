@@ -133,17 +133,9 @@ const reducer = (state, action) => {
       case KEY.ARROW_RIGHT:
         return reduceKeyRight(state);
       case KEY.ARROW_UP:
-        return {
-          ...state,
-          selection: undefined,
-          focusedRow: Math.max(0, state.focusedRow - 1)
-        };
+        return reduceKeyUp(state);
       case KEY.ARROW_DOWN:
-        return {
-          ...state,
-          selection: undefined,
-          focusedRow: Math.min(state.lines.length - 1, state.focusedRow + 1)
-        };
+        return reduceKeyDown(state);
       case KEY.BACK_SPACE:
         return reduceKeyBackspace(state);
       case KEY.DELETE:
@@ -244,6 +236,40 @@ const reduceKeyRight = state => {
       : state.index + 1;
 
   return { ...state, selection: undefined, index, focusedRow };
+};
+
+/* ARROW_UP */
+const reduceKeyUp = state => {
+  const { scrollRange: sr, lines } = state;
+  const focusedRow = Math.max(0, state.focusedRow - 1);
+  const start = focusedRow >= sr.start ? sr.start : focusedRow;
+  return {
+    ...state,
+    selection: undefined,
+    focusedRow,
+    scrollRange: {
+      ...sr,
+      start,
+      stop: Math.min(start + sr.offset - 1, lines.length - 1)
+    }
+  };
+};
+
+/* ARROW_DOWN */
+const reduceKeyDown = state => {
+  const { scrollRange: sr, lines } = state;
+  const focusedRow = Math.min(lines.length - 1, state.focusedRow + 1);
+  const stop = focusedRow <= sr.stop ? sr.stop : focusedRow;
+  return {
+    ...state,
+    selection: undefined,
+    focusedRow,
+    scrollRange: {
+      ...sr,
+      start: Math.max(stop - sr.offset + 1, 0),
+      stop
+    }
+  };
 };
 
 /* DELETE */
