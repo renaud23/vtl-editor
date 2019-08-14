@@ -472,7 +472,7 @@ const deleteOnRow = ({ start, stop }) => ({ value }, row) => {
 
 /* INSERT_TEXT */
 const insertText = (state, text) => {
-  const { focusedRow, index } = state;
+  const { focusedRow, index, scrollRange: sr } = state;
   if (focusedRow !== undefined && index !== undefined) {
     const newRows = text.split(/\n/);
     // if (newRows[newRows.length - 1].length === 0) newRows.pop();
@@ -491,7 +491,15 @@ const insertText = (state, text) => {
       lines,
       selection: undefined,
       focusedRow: newFocusedRow,
-      index: newIndex
+      index: newIndex,
+      scrollRange:
+        newFocusedRow >= sr.start && newFocusedRow <= sr.stop
+          ? sr
+          : {
+              ...sr,
+              start: Math.max(newFocusedRow - sr.offset + 1, 0),
+              stop: newFocusedRow
+            }
     };
   }
 
