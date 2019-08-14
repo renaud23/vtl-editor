@@ -14,9 +14,9 @@ export const mouseUpToken = args => ({
 
 /* SET_CURSOR_POSITION */
 export const SET_CURSOR_POSITION = "editor/set-cursor-position";
-export const setCursorPosition = (numberRow, index, offsetLeft) => ({
+export const setCursorPosition = (numberRow, index) => ({
   type: SET_CURSOR_POSITION,
-  payload: { numberRow, index, offsetLeft }
+  payload: { numberRow, index }
 });
 
 /* CHECK_PREFIX */

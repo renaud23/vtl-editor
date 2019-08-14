@@ -73,7 +73,7 @@ const keyDownCallback = (dispatch, state, shortcutPattern) => e => {
       if (isCharCode(e.key)) {
         stopAndPrevent(e);
         dispatch(actions.insertCharacter(e.key));
-        // dispatch(actions.checkPrefix());
+        dispatch(actions.checkPrefix());
         return true;
       }
       return false;
