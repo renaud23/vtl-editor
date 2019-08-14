@@ -83,6 +83,24 @@ $rowHeight: 22px;
       right: 0;
       top: 0;
       border-left: solid $bgLighterColor 1px;
+      margin: 0;
+      .selection {
+        position: absolute;
+        display: inline-block;
+        background-color: rgba(250, 74, 215, 0.8);
+        width: 4px;
+        margin: auto;
+        left: 0;
+        right: 0;
+      }
+
+      .cursor {
+        position: absolute;
+        display: inline-block;
+        background-color: rgba(198, 228, 31, 0.8);
+        width: 12px;
+        height: 2px;
+      }
 
       .dragger {
         position: absolute;
