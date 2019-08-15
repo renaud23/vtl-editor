@@ -1,5 +1,6 @@
 import * as actions from "./editor.actions";
 import { getSelection } from "./selection-tools";
+import clipboard from "./clipboard";
 
 const SHORT_CUTS = new Map();
 
@@ -51,8 +52,7 @@ const selectAll = (dispatch, state) => {
 const copy = (dispatch, state) => {
   if (state.selection) {
     const content = getSelection(state);
-    if (navigator && navigator.clipboard)
-      navigator.clipboard.writeText(content);
+    clipboard.copy(content);
   }
   return true;
 };
