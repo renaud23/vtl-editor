@@ -41,20 +41,23 @@ const ScrollUpDown = ({ parentEl }) => {
 	return null;
 };
 /* */
-const Dragguer = ({ height, parentEl }) => {
+const offsetY = { y: 0 };
+const setOffsetY = function(y) {
+	offsetY.y = y;
+};
+const Dragguer = ({ height }) => {
 	const state = useContext(EditorContext);
 	const { lines, scrollRange, dispatch } = state;
 
-	const [ offsetY, setOffsetY ] = useState(0);
 	const [ drag, setDrag ] = useState(false);
-	const [ dgHeight, setDgHeight ] = useState(0);
-	const [ dgTop, setDgTop ] = useState(0);
+	const [ dgHeight, setDgHeight ] = useState(() => Math.max(scrollRange.offset / lines.length * height, 5));
+	const [ dgTop, setDgTop ] = useState(() => scrollRange.start / lines.length * height);
 
 	useEffect(
 		() => {
 			setDgHeight(Math.max(scrollRange.offset / lines.length * height, 5));
 		},
-		[ scrollRange.offset, lines.length, height ]
+		[ scrollRange.offset, lines.length, height, dgHeight ]
 	);
 
 	useEffect(
@@ -68,21 +71,19 @@ const Dragguer = ({ height, parentEl }) => {
 		() => {
 			if (drag) {
 				const dragEvent = (e) => {
-					const rh = height / lines.length;
-					const dist = e.clientY - offsetY;
-					const how = Math.trunc(dist / rh);
+					const dist = e.clientY - offsetY.y;
 
-					if (how !== 0) {
-						console.log({ rh, dist, how, rest: dist % rh });
-						const nextStart = scrollRange.start + how;
-						const start =
-							how > 0 ? Math.min(nextStart, lines.length - scrollRange.offset) : Math.max(nextStart, 0);
-						const stop =
-							how > 0
-								? Math.min(nextStart + scrollRange.offset - 1, lines.length - 1)
-								: Math.max(nextStart + scrollRange.offset - 1, 0);
+					const newDgPos = Math.min(Math.max(0, dgTop + dist), height - dgHeight);
+					if (newDgPos !== dgTop) {
+						setDgTop(newDgPos);
 						setOffsetY(e.clientY);
-						// dispatch(actions.setScrollrange({ ...scrollRange, start, stop }));
+						const start = Math.round(newDgPos / height * lines.length);
+						// réduire le nombre de dispatch
+						if (start !== scrollRange.start) {
+							dispatch(
+								actions.setScrollrange({ ...scrollRange, start, stop: start + scrollRange.offset - 1 })
+							);
+						}
 					}
 				};
 				const upEvent = (e) => {
@@ -97,7 +98,7 @@ const Dragguer = ({ height, parentEl }) => {
 				};
 			}
 		},
-		[ drag, scrollRange, dgTop, lines.length, offsetY, height, dispatch ]
+		[ drag, scrollRange, dgTop, lines.length, height, dispatch, dgHeight ]
 	);
 
 	return (
