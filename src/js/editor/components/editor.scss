@@ -108,6 +108,7 @@ $rowHeight: 22px;
       }
 
       .dragger {
+        z-index: 4;
         position: absolute;
         display: inline-block;
         background-color: rgba(224, 218, 218, 0.4);

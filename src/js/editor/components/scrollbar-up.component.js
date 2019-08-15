@@ -41,7 +41,7 @@ const ScrollUpDown = ({ parentEl }) => {
 	return null;
 };
 /* */
-const offsetY = { y: 0 };
+const offsetY = { y: 0, pre: undefined };
 const setOffsetY = function(y) {
 	offsetY.y = y;
 };
@@ -62,7 +62,10 @@ const Dragguer = ({ height }) => {
 
 	useEffect(
 		() => {
-			setDgTop(scrollRange.start / lines.length * height);
+			const next = Math.round(scrollRange.start / lines.length * height);
+			if (scrollRange.start !== offsetY.pre) {
+				setDgTop(next);
+			}
 		},
 		[ scrollRange.start, lines.length, height ]
 	);
@@ -72,14 +75,14 @@ const Dragguer = ({ height }) => {
 			if (drag) {
 				const dragEvent = (e) => {
 					const dist = e.clientY - offsetY.y;
-
 					const newDgPos = Math.min(Math.max(0, dgTop + dist), height - dgHeight);
+
 					if (newDgPos !== dgTop) {
 						setDgTop(newDgPos);
 						setOffsetY(e.clientY);
-						const start = Math.round(newDgPos / height * lines.length);
-						// réduire le nombre de dispatch
+						const start = Math.round(Math.round(newDgPos / height * lines.length));
 						if (start !== scrollRange.start) {
+							offsetY.pre = start; // trick
 							dispatch(
 								actions.setScrollrange({ ...scrollRange, start, stop: start + scrollRange.offset - 1 })
 							);
